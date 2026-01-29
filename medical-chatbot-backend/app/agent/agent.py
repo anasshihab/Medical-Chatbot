@@ -8,6 +8,7 @@ from app.tools.keyword_search import KeywordSearchTool
 from app.tools.symptom_checker import SymptomCheckerTool
 from app.safety.emergency_detector import is_emergency, detect_special_cases
 from app.safety.responses import get_emergency_response, get_boundary_reminder
+from app.safety.content_normalizer import normalize_search_results
 
 
 class MedicalChatAgent:
@@ -86,7 +87,9 @@ class MedicalChatAgent:
             tool_result = await self.keyword_search.execute(search_query=search_query)
             
             if tool_result.success:
-                tool_results = tool_result.data
+                # POST-SEARCH SAFETY NORMALIZATION
+                # تنظيف المحتوى من التشخيصات والأدوية قبل إرساله للذكاء الاصطناعي
+                tool_results = normalize_search_results(tool_result.data)
                 sources = tool_result.sources
                 
                 # Send tool results as metadata

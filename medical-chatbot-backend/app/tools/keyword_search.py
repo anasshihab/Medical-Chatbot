@@ -16,7 +16,7 @@ class KeywordSearchTool(BaseTool):
     
     @property
     def description(self) -> str:
-        return """Search trusted medical sources (WebTeb, WHO, Mayo Clinic) for information.
+        return """Search trusted medical sources (WHO, CDC, NIH, Mayo Clinic, PubMed, etc.) for information.
 Use this when users ask general medical questions or need information about conditions, symptoms, or health topics.
 Input: search_query (string)"""
     
@@ -38,11 +38,23 @@ Input: search_query (string)"""
                 domain_results = await self._search_domain(domain, search_query)
                 results.extend(domain_results)
             
+            # STRICT FILTERING: Remove any result not from approved domains
+            validated_results = []
+            for r in results:
+                # Extract domain from URL
+                from urllib.parse import urlparse
+                parsed_url = urlparse(r.get("url", ""))
+                result_domain = parsed_url.netloc.replace("www.", "")
+                
+                # Only include if domain matches one of our approved domains
+                if any(approved in result_domain for approved in APPROVED_DOMAINS):
+                    validated_results.append(r)
+            
             # Rank results by domain priority
-            results.sort(key=lambda x: DOMAIN_PRIORITY.get(x["domain"], 999))
+            validated_results.sort(key=lambda x: DOMAIN_PRIORITY.get(x["domain"], 999))
             
             # Limit to top 5 results
-            results = results[:5]
+            validated_results = validated_results[:5]
             
             # Extract sources
             sources = [
@@ -52,12 +64,12 @@ Input: search_query (string)"""
                     "domain": r["domain"],
                     "snippet": r["snippet"]
                 }
-                for r in results
+                for r in validated_results
             ]
             
             return ToolResult(
                 success=True,
-                data=results,
+                data=validated_results,
                 sources=sources
             )
             
@@ -69,44 +81,49 @@ Input: search_query (string)"""
     
     async def _search_domain(self, domain: str, query: str) -> List[Dict]:
         """
-        Search a specific domain using Google site search
-        
-        This is a simplified implementation. In production, you might want to:
-        1. Use official APIs from each source
-        2. Implement caching
-        3. Add rate limiting
+        Search a specific domain using DuckDuckGo HTML (more reliable for scraping)
         """
         results = []
         
         try:
-            # Use Google site search (simplified approach)
-            # In production, consider using official APIs or a search service
-            search_url = f"https://www.google.com/search?q=site:{domain}+{quote_plus(query)}"
+            # Use DuckDuckGo HTML version which is easier to scrape and has fewer blocks
+            # q=site:domain.com query
+            search_query = f"site:{domain} {query}"
+            search_url = "https://html.duckduckgo.com/html/"
+            params = {"q": search_query}
             
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Referer": "https://html.duckduckgo.com/"
             }
             
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(search_url, headers=headers)
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                response = await client.post(search_url, data=params, headers=headers)
                 
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
-                    # Parse search results (this is simplified)
-                    # In production, use proper APIs
-                    for result in soup.select('.g')[:3]:  # Top 3 per domain
-                        title_elem = result.select_one('h3')
-                        link_elem = result.select_one('a')
-                        snippet_elem = result.select_one('.VwiC3b')
+                    # DuckDuckGo HTML results are in .result elements
+                    for result in soup.select('.result')[:3]:  # Top 3 per domain
+                        title_elem = result.select_one('.result__a')
+                        snippet_elem = result.select_one('.result__snippet')
+                        url_elem = result.select_one('.result__url')
                         
-                        if title_elem and link_elem:
+                        if title_elem and snippet_elem:
+                            url = title_elem.get('href', '')
+                            # DDG sometimes wraps URLs
+                            if 'duckduckgo.com/l/?kh=-1&uddg=' in url:
+                                from urllib.parse import unquote
+                                url = unquote(url.split('uddg=')[1].split('&')[0])
+                            
                             results.append({
-                                "title": title_elem.get_text(),
-                                "url": link_elem.get('href', ''),
+                                "title": title_elem.get_text(strip=True),
+                                "url": url,
                                 "domain": domain,
-                                "snippet": snippet_elem.get_text() if snippet_elem else ""
+                                "snippet": snippet_elem.get_text(strip=True)
                             })
+                else:
+                    print(f"Search failed for {domain}: Status {response.status_code}")
         
         except Exception as e:
             # Log error but don't fail the entire search

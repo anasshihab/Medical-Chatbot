@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
     
     # OpenAI Configuration
-    # مطلوب: احصل على API Key من https://platform.openai.com/api-keys
+    # تم تحميل مفتاح OpenAI من ملف .env — لا تضعه داخل الكود
+    # OpenAI API key is loaded from .env file — do NOT put it in code
     OPENAI_API_KEY: str
     OPENAI_MODEL: str = "gpt-4-turbo-preview"
     

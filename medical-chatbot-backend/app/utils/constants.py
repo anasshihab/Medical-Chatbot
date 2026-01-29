@@ -52,17 +52,28 @@ EMERGENCY_KEYWORDS = [
 ]
 
 # Approved medical domains for keyword search
+# مصادر طبية موثوقة فقط - Trusted medical sources only
 APPROVED_DOMAINS = [
-    "webteb.com",
-    "who.int",
-    "mayoclinic.org",
+    "nih.gov",              # NIH (National Institutes of Health)
+    "medlineplus.gov",      # MedlinePlus (NIH)
+    "mayoclinic.org",       # Mayo Clinic
+    "webmd.com",            # WebMD
+    "healthline.com",       # Healthline
+    "who.int",              # World Health Organization
+    "cdc.gov",              # CDC (Centers for Disease Control)
+    "pubmed.ncbi.nlm.nih.gov", # PubMed
 ]
 
-# Domain priority for ranking search results
+# Domain priority for ranking search results (authority ranking)
 DOMAIN_PRIORITY = {
-    "webteb.com": 1,
-    "who.int": 2,
-    "mayoclinic.org": 3,
+    "who.int": 1,           # Global authority
+    "cdc.gov": 1,           # National authority
+    "nih.gov": 1,           # Research authority
+    "medlineplus.gov": 2,
+    "mayoclinic.org": 2,
+    "pubmed.ncbi.nlm.nih.gov": 2,
+    "webmd.com": 3,
+    "healthline.com": 4,
 }
 
 # Special case keywords requiring extra caution

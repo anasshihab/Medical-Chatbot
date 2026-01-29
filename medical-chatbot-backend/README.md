@@ -2,10 +2,21 @@
 
 Production-ready backend for a medical AI chatbot with agentic capabilities, safety guardrails, and guest mode support.
 
+## ⚠️ تنويه طبي مهم / Important Medical Disclaimer
+
+**هذا النظام:**
+- ❌ **لا يقدم تشخيصات طبية** - Does NOT provide medical diagnoses
+- ❌ **لا يصف أدوية** - Does NOT prescribe medications  
+- ✅ **يوفر معلومات تعليمية فقط** - Provides educational information only
+- ✅ **من مصادر موثوقة** - From trusted sources (NIH, Mayo Clinic, etc.)
+
+**استشر طبيبًا مختصًا دائمًا للحصول على تشخيص أو علاج.**  
+**Always consult a qualified healthcare provider for diagnosis or treatment.**
+
 ## 🏗️ Architecture Overview
 
 This backend implements a **safety-first medical chatbot** that:
-- ✅ Provides medical information from trusted sources only
+- ✅ Provides medical information from trusted sources only (NIH, MedlinePlus, Mayo Clinic, WebMD, Healthline)
 - ✅ **Never** provides diagnoses or medication prescriptions
 - ✅ Detects emergencies and provides immediate guidance
 - ✅ Supports both authenticated users and guest sessions
@@ -17,12 +28,26 @@ This backend implements a **safety-first medical chatbot** that:
 
 - Python 3.10+
 - PostgreSQL 14+
-- OpenAI API key
+- OpenAI API key (already configured in `.env`)
 - WebTeb Symptom Checker API credentials (optional for MVP)
 
-## 🚀 Quick Start
+## 🚀 البدء السريع / Quick Start
 
-### 1. Clone and Setup
+### 📌 ملاحظة مهمة / Important Note
+
+**مفتاح OpenAI تم تكوينه مسبقاً في ملف `.env`**  
+The OpenAI API key is already configured in the `.env` file
+
+**لا حاجة لإعداد إضافي - فقط شغّل الأمر التالي:**  
+No additional setup needed - just run the following command:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+---
+
+### 1. تثبيت المتطلبات / Install Dependencies
 
 ```bash
 cd medical-chatbot-backend
@@ -33,43 +58,14 @@ venv\Scripts\activate
 
 # Linux/Mac
 source venv/bin/activate
-```
 
-### 2. Install Dependencies
-
-```bash
+# Install packages
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
+### 2. إعداد قاعدة البيانات / Setup Database
 
-```bash
-# نسخ ملف الإعدادات وتعديله
-# Copy .env.example to .env and edit with your values
-copy .env.example .env
-```
-
-**⚠️ مطلوب - Required Configuration (edit `.env` file):**
-
-```env
-# قاعدة البيانات - Database
-# قم بإنشاء قاعدة بيانات PostgreSQL أولاً
-DATABASE_URL=postgresql://username:password@localhost:5432/medical_chatbot
-
-# JWT Secret
-# قم بتوليد مفتاح عشوائي: openssl rand -hex 32
-SECRET_KEY=your-secret-key-here
-
-# OpenAI
-# احصل على المفتاح من: https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk-your-key-here
-
-# WebTeb (اختياري للنسخة التجريبية - Optional for MVP)
-WEBTEB_API_KEY=your-webteb-key-here
-WEBTEB_API_URL=https://api.webteb.com/symptom-checker
-```
-
-### 4. Setup Database
+أنشئ قاعدة بيانات PostgreSQL أولاً، ثم:
 
 ```bash
 # Create database migrations
@@ -79,26 +75,87 @@ alembic revision --autogenerate -m "Initial schema"
 alembic upgrade head
 ```
 
-### 5. Run the Server
+### 3. تشغيل الخادم / Run the Server
 
 ```bash
-# Development mode
 uvicorn app.main:app --reload
-
-# Production mode
-uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at: http://localhost:8000
+السيرفر سيعمل على: http://localhost:8000  
+The server will run at: http://localhost:8000
 
-API Documentation (Swagger): http://localhost:8000/docs
+---
 
-## 📁 Project Structure
+## 🧪 طرق الاختبار / Testing Methods
+
+### 1️⃣ الطريقة الأولى: واجهة الاختبار البسيطة / Simple Test Interface
+
+افتح المتصفح وانتقل إلى:  
+Open your browser and go to:
 
 ```
-medical-chatbot-backend/
-├── app/
-│   ├── __init__.py
+http://localhost:8000/test
+```
+
+- واجهة بسيطة وسهلة الاستخدام
+- تدعم العربية والإنجليزية
+- تعرض المصادر المستخدمة
+- آمنة ولا تعرض أكواد أو مفاتيح
+
+Features:
+- Simple and easy to use
+- Supports Arabic and English
+- Shows sources used
+- Secure - no code or keys exposed
+
+### 2️⃣ الطريقة الثانية: Swagger API Documentation
+
+افتح:  
+Open:
+
+```
+http://localhost:8000/docs
+```
+
+- واجهة تفاعلية لكل نقاط API
+- جرّب الطلبات مباشرة
+- شاهد التفاصيل الكاملة
+
+Features:
+- Interactive API explorer
+- Test requests directly
+- Full technical details
+
+### 3️⃣ الطريقة الثالثة: واجهة المحادثة الجديدة / New Chat Interface
+
+افتح المتصفح وانتقل إلى:
+Open:
+
+```
+http://localhost:8000/chat
+```
+
+- واجهة محادثة متكاملة
+- تدعم الرد المباشر من البوت
+- تصميم أنيق وبسيط
+
+Features:
+- Full chat interface
+- Connects directly to bot API
+- Clean, simple design
+
+## ⚠️ تحديث هام لقاعدة البيانات / Important Database Update
+
+تم تغيير اسم العمود من `metadata` إلى `meta_data` في جدول الرسائل. يجب عليك إنشاء ترحيل جديد لقاعدة البيانات:
+The column `metadata` was renamed to `meta_data`. You MUST create a new database migration:
+
+```bash
+# إنشاء الترحيل - Create migration
+alembic revision --autogenerate -m "rename metadata to meta_data"
+
+# تطبيق التغييرات - Apply changes
+alembic upgrade head
+```
 │   ├── main.py                 # FastAPI app entry point
 │   ├── config.py               # Settings and environment variables
 │   ├── database.py             # Database connection

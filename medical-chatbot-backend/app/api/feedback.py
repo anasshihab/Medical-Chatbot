@@ -119,7 +119,7 @@ async def process_negative_feedback(
             conversation_id=conversation.id,
             role="assistant",
             content=improved_content,
-            metadata={**metadata, "is_improved": True, "original_message_id": original_message.id}
+            meta_data={**metadata, "is_improved": True, "original_message_id": original_message.id}
         )
         db.add(improved_message)
         

@@ -1,7 +1,7 @@
 """Main FastAPI application"""
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from app.config import settings
 from app.utils.errors import AppException
 from app.schemas.error import ErrorResponse, ErrorDetail
@@ -86,8 +86,48 @@ async def root():
     return {
         "message": "Medical AI Chatbot API",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
+        "test_interface": "/test"
     }
+
+
+# Test interface endpoint
+@app.get("/test", response_class=HTMLResponse)
+async def test_interface():
+    """
+    Simple test interface for the chatbot
+    واجهة اختبار بسيطة - لا تعرض أي كود خلفي أو مفاتيح API
+    """
+    import os
+    template_path = os.path.join(
+        os.path.dirname(__file__),
+        "templates",
+        "test_interface.html"
+    )
+    
+    with open(template_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    
+    return HTMLResponse(content=html_content)
+
+
+# Simple Chat Interface
+@app.get("/chat", response_class=HTMLResponse)
+async def simple_chat_interface():
+    """
+    Simple chat interface requested by user
+    """
+    import os
+    template_path = os.path.join(
+        os.path.dirname(__file__),
+        "templates",
+        "chat.html"
+    )
+    
+    with open(template_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    
+    return HTMLResponse(content=html_content)
 
 
 if __name__ == "__main__":

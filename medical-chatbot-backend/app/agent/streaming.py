@@ -10,6 +10,12 @@ class StreamingClient:
     """Wrapper for OpenAI streaming API"""
     
     def __init__(self):
+        # تحقق من وجود مفتاح OpenAI - Check if OpenAI key exists
+        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY.startswith("sk-your"):
+            raise OpenAIException(
+                message="OpenAI API key is missing or not configured. Please set OPENAI_API_KEY in .env file.",
+                details={"error": "OPENAI_KEY_NOT_CONFIGURED"}
+            )
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
     
     async def stream_chat(

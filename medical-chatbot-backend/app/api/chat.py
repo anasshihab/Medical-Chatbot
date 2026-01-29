@@ -127,7 +127,7 @@ async def chat(
                         conversation_id=conversation.id,
                         role="assistant",
                         content=assistant_message_content,
-                        metadata=metadata
+                        meta_data=metadata
                     )
                     db.add(assistant_message)
                     

@@ -9,7 +9,7 @@ class MessageResponse(BaseModel):
     id: int
     role: str
     content: str
-    metadata: Optional[Dict[str, Any]] = None
+    meta_data: Optional[Dict[str, Any]] = None
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)

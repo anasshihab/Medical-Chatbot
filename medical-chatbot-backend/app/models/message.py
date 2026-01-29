@@ -17,7 +17,7 @@ class Message(Base):
     content = Column(Text, nullable=False)
     
     # Metadata for assistant messages
-    metadata = Column(JSON, nullable=True)  # {"tools_used": [...], "sources": [...], "is_emergency": false}
+    meta_data = Column(JSON, nullable=True)  # {"tools_used": [...], "sources": [...], "is_emergency": false}
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
