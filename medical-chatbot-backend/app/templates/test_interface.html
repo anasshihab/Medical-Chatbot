@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,33 +21,33 @@
             align-items: center;
             padding: 20px;
         }
-        
+
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 800px;
             width: 100%;
             overflow: hidden;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-        
+
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
         }
-        
+
         .header p {
             opacity: 0.9;
             font-size: 14px;
         }
-        
+
         .disclaimer {
             background: #fff3cd;
             border-right: 4px solid #ffc107;
@@ -56,13 +57,13 @@
             font-size: 13px;
             line-height: 1.6;
         }
-        
+
         .disclaimer strong {
             color: #856404;
             display: block;
             margin-bottom: 5px;
         }
-        
+
         .chat-area {
             padding: 20px;
             min-height: 400px;
@@ -70,7 +71,7 @@
             overflow-y: auto;
             background: #f8f9fa;
         }
-        
+
         .message {
             margin-bottom: 15px;
             padding: 12px 18px;
@@ -79,25 +80,26 @@
             word-wrap: break-word;
             animation: fadeIn 0.3s ease;
         }
-        
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .message.user {
             background: #667eea;
             color: white;
             margin-right: auto;
             border-bottom-right-radius: 4px;
         }
-        
+
         .message.assistant {
             background: white;
             color: #333;
@@ -105,25 +107,25 @@
             border: 1px solid #e0e0e0;
             border-bottom-left-radius: 4px;
         }
-        
+
         .sources {
             margin-top: 10px;
             padding-top: 10px;
             border-top: 1px solid #e0e0e0;
             font-size: 12px;
         }
-        
+
         .sources a {
             color: #667eea;
             text-decoration: none;
             display: block;
             margin-top: 5px;
         }
-        
+
         .sources a:hover {
             text-decoration: underline;
         }
-        
+
         .input-area {
             padding: 20px;
             background: white;
@@ -131,7 +133,7 @@
             display: flex;
             gap: 10px;
         }
-        
+
         #messageInput {
             flex: 1;
             padding: 15px;
@@ -141,11 +143,11 @@
             outline: none;
             transition: border-color 0.3s;
         }
-        
+
         #messageInput:focus {
             border-color: #667eea;
         }
-        
+
         #sendButton {
             padding: 15px 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -157,17 +159,17 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         #sendButton:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
+
         #sendButton:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -177,26 +179,22 @@
             border-top-color: #667eea;
             animation: spin 1s ease-in-out infinite;
         }
-        
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>🏥 Medical Chatbot Test Interface</h1>
             <p>واجهة اختبار بسيطة للبوت الطبي</p>
         </div>
-        
-        <div class="disclaimer">
-            <strong>⚠️ تنويه طبي مهم / Medical Disclaimer:</strong>
-            هذا النظام للأغراض التعليمية فقط. لا يقدم تشخيصات طبية ولا يصف أدوية. استشر طبيبًا مختصًا دائمًا.
-            <br>
-            This system is for educational purposes only. It does NOT diagnose or prescribe medications. Always consult a qualified healthcare provider.
-        </div>
-        
+
         <div class="chat-area" id="chatArea">
             <div class="message assistant">
                 مرحباً! أنا مساعد طبي ذكي. يمكنني مساعدتك في الحصول على معلومات صحية من مصادر موثوقة.<br><br>
@@ -205,31 +203,35 @@
                 How can I help you today?
             </div>
         </div>
-        
+
+        <div class="disclaimer">
+            <strong>⚠️ تنويه طبي مهم / Medical Disclaimer:</strong>
+            هذا النظام للأغراض التعليمية فقط. لا يقدم تشخيصات طبية ولا يصف أدوية. استشر طبيبًا مختصًا دائمًا.
+            <br>
+            This system is for educational purposes only. It does NOT diagnose or prescribe medications. Always consult
+            a qualified healthcare provider.
+        </div>
+
         <div class="input-area">
-            <input 
-                type="text" 
-                id="messageInput" 
-                placeholder="اكتب سؤالك الطبي هنا... / Type your medical question here..."
-                autocomplete="off"
-            >
+            <input type="text" id="messageInput"
+                placeholder="اكتب سؤالك الطبي هنا... / Type your medical question here..." autocomplete="off">
             <button id="sendButton">إرسال / Send</button>
         </div>
     </div>
-    
+
     <script>
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const guestSessionId = 'test-session-' + Date.now();
-        
+
         let isProcessing = false;
-        
+
         function addMessage(content, isUser = false, sources = null) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
             messageDiv.innerHTML = content.replace(/\n/g, '<br>');
-            
+
             if (sources && sources.length > 0) {
                 const sourcesDiv = document.createElement('div');
                 sourcesDiv.className = 'sources';
@@ -243,30 +245,30 @@
                 });
                 messageDiv.appendChild(sourcesDiv);
             }
-            
+
             chatArea.appendChild(messageDiv);
             chatArea.scrollTop = chatArea.scrollHeight;
             return messageDiv;
         }
-        
+
         async function sendMessage() {
             const message = messageInput.value.trim();
             if (!message || isProcessing) return;
-            
+
             // Add user message
             addMessage(message, true);
             messageInput.value = '';
-            
+
             // Disable input
             isProcessing = true;
             sendButton.disabled = true;
             sendButton.innerHTML = '<span class="loading"></span>';
-            
+
             // Create assistant message placeholder
             const assistantMessage = addMessage('<span class="loading"></span>', false);
             let fullResponse = '';
             let sources = [];
-            
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -278,21 +280,21 @@
                         guest_session_id: guestSessionId
                     })
                 });
-                
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
+
                     const chunk = decoder.decode(value);
                     const lines = chunk.split('\n');
-                    
+
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const data = JSON.parse(line.substring(6));
-                            
+
                             if (data.type === 'content') {
                                 fullResponse += data.data;
                                 assistantMessage.innerHTML = fullResponse.replace(/\n/g, '<br>');
@@ -325,7 +327,7 @@
                 sendButton.textContent = 'إرسال / Send';
             }
         }
-        
+
         sendButton.addEventListener('click', sendMessage);
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -334,4 +336,5 @@
         });
     </script>
 </body>
+
 </html>
