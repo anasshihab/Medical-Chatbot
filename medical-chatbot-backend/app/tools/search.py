@@ -46,7 +46,7 @@ class SearchTool(BaseTool):
                     return "MedlinePlus"
         return "Medical Source"
 
-    async def execute(self, query: str) -> ToolResult:
+    async def execute(self, query: str, timelimit: str = None) -> ToolResult:
         try:
             all_results = []
             
@@ -54,7 +54,12 @@ class SearchTool(BaseTool):
                 # STEP 1: Search WebTeb FIRST (Primary Source)
                 webteb_query = f"site:webteb.com {query}"
                 try:
-                    webteb_results = ddgs.text(webteb_query, max_results=5)
+                    # Added timelimit parameter for recency
+                    webteb_results = ddgs.text(
+                        webteb_query, 
+                        max_results=5,
+                        timelimit=timelimit
+                    )
                     for r in webteb_results:
                         all_results.append({
                             "title": r.get("title"),
@@ -71,7 +76,11 @@ class SearchTool(BaseTool):
                 sites_query = " OR ".join([f"site:{domain}" for domain in other_domains])
                 full_query = f"({sites_query}) {query}"
                 
-                other_results = ddgs.text(full_query, max_results=6)
+                other_results = ddgs.text(
+                    full_query, 
+                    max_results=6,
+                    timelimit=timelimit
+                )
                 for r in other_results:
                     url = r.get("href", "")
                     all_results.append({

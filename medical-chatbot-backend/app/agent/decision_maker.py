@@ -2,6 +2,7 @@
 from typing import Dict, List, Optional
 import json
 import logging
+from app.utils.cost_calculator import log_ai_cost
 from openai import AsyncOpenAI
 from app.config import settings
 from app.agent.prompt_builder import get_tool_decision_prompt
@@ -45,6 +46,15 @@ class DecisionMaker:
                 temperature=0,
                 response_format={"type": "json_object"}
             )
+            
+            # Log cost
+            if response.usage:
+                log_ai_cost(
+                    model="gpt-3.5-turbo",
+                    input_tokens=response.usage.prompt_tokens,
+                    output_tokens=response.usage.completion_tokens,
+                    context="Decision Maker"
+                )
             
             content = response.choices[0].message.content
             decision = json.loads(content)

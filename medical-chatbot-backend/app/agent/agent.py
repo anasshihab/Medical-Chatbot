@@ -13,6 +13,7 @@ from app.safety.responses import get_emergency_response
 # Global client for efficiency
 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 logger = logging.getLogger(__name__)
+from app.utils.cost_calculator import log_ai_cost
 
 class MedicalChatAgent:
     """Stable Agentic implementation with tool execution and citations"""
@@ -29,7 +30,12 @@ class MedicalChatAgent:
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "query": {"type": "string", "description": "The search query"}
+                            "query": {"type": "string", "description": "The search query"},
+                            "timelimit": {
+                                "type": "string", 
+                                "description": "Filter results by time: 'd' (day), 'w' (week), 'm' (month), 'y' (year). USE THIS for latest news or recent updates.",
+                                "enum": ["d", "w", "m", "y"]
+                            }
                         },
                         "required": ["query"]
                     }
@@ -119,6 +125,15 @@ class MedicalChatAgent:
                 tool_choice="auto"
             )
             
+            # Log initial call cost
+            if response.usage:
+                log_ai_cost(
+                    model="gpt-4o",
+                    input_tokens=response.usage.prompt_tokens,
+                    output_tokens=response.usage.completion_tokens,
+                    context="Agent Initial"
+                )
+            
             message = response.choices[0].message
             tool_calls = message.tool_calls
 
@@ -133,7 +148,10 @@ class MedicalChatAgent:
                     # Execute Tools
                     tool_result = ""
                     if function_name == "medical_search":
-                        exec_result = await self.search_tool.execute(args.get("query"))
+                        exec_result = await self.search_tool.execute(
+                            args.get("query"), 
+                            timelimit=args.get("timelimit")
+                        )
                         if exec_result.success:
                             tool_result = json.dumps(exec_result.data)
                             yield {"type": "metadata", "data": {"sources": exec_result.sources}}
@@ -158,12 +176,21 @@ class MedicalChatAgent:
                 stream = await client.chat.completions.create(
                     model="gpt-4o",
                     messages=messages,
-                    stream=True
+                    stream=True,
+                    stream_options={"include_usage": True}
                 )
                 
                 full_content = ""
                 async for chunk in stream:
                     if not chunk.choices:
+                        # Handle usage chunk at the end
+                        if hasattr(chunk, 'usage') and chunk.usage:
+                            log_ai_cost(
+                                model="gpt-4o",
+                                input_tokens=chunk.usage.prompt_tokens,
+                                output_tokens=chunk.usage.completion_tokens,
+                                context="Agent Final (Streamed)"
+                            )
                         continue
                     content = chunk.choices[0].delta.content
                     if content:
@@ -178,11 +205,20 @@ class MedicalChatAgent:
                 stream = await client.chat.completions.create(
                     model="gpt-4o",
                     messages=messages,
-                    stream=True
+                    stream=True,
+                    stream_options={"include_usage": True}
                 )
                 full_content = ""
                 async for chunk in stream:
                     if not chunk.choices:
+                        # Handle usage chunk at the end
+                        if hasattr(chunk, 'usage') and chunk.usage:
+                            log_ai_cost(
+                                model="gpt-4o",
+                                input_tokens=chunk.usage.prompt_tokens,
+                                output_tokens=chunk.usage.completion_tokens,
+                                context="Agent Direct (Streamed)"
+                            )
                         continue
                     content = chunk.choices[0].delta.content
                     if content:
