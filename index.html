@@ -1155,7 +1155,9 @@
             title="فحص الأعراض">
             <i class="fas fa-stethoscope"></i>
         </a>
-        <div class="action-btn"><i class="fas fa-cog"></i></div>
+        <div class="action-btn" title="إعدادات الاتصال" onclick="updateBackendUrl()">
+            <i class="fas fa-cog"></i>
+        </div>
     </div>
 
     <!-- MAIN APP STRUCTURE -->
@@ -1653,8 +1655,14 @@
 
 
         // --- 2. CHAT FUNCTIONALITY ---
-        // Configuration: Set this to your backend URL when deploying to a different host (e.g., Netlify)
-        const API_BASE_URL = ''; // Leave empty for same-host deployment
+        // Dynamic configuration: Try to get URL from localStorage, or use a default.
+        // This allows you to update the backend URL without re-deploying to Netlify.
+        let API_BASE_URL = localStorage.getItem('med_api_url') || '';
+
+        // Auto-detect if we're on localhost
+        if (!API_BASE_URL && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            API_BASE_URL = 'http://localhost:8000';
+        }
 
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -2009,7 +2017,8 @@
                     chatArea.scrollTop = chatArea.scrollHeight;
                 }
             } catch (err) {
-                document.getElementById(loadId).innerHTML = `<div class="message-bubble text-danger">عذراً، حدث خطأ في الاتصال.</div>`;
+                const errorMsg = API_BASE_URL ? `عذراً، تعذر الاتصال بالخادم في ${API_BASE_URL}` : 'عذراً، لم يتم ضبط رابط الخادم. يرجى الضبط من الإعدادات.';
+                document.getElementById(loadId).innerHTML = `<div class="message-bubble text-danger">${errorMsg}</div>`;
             }
         }
 
@@ -2058,10 +2067,6 @@
 
                 const conversations = await response.json();
 
-                // Keep groups (Today, etc) or just render all for now?
-                // Let's just render all in a simple list for now as per current template structure
-                // But we'll try to keep the group headers if we have enough data
-
                 if (conversations.length === 0) {
                     conversationsList.innerHTML = '<div style="text-align: center; color: var(--text-med); padding: 20px;">لا توجد محادثات سابقة</div>';
                     return;
@@ -2100,6 +2105,16 @@
 
             } catch (err) {
                 console.error("Error loading conversations:", err);
+            }
+        }
+
+        // Allow user to manually update the API URL
+        function updateBackendUrl() {
+            const current = localStorage.getItem('med_api_url') || API_BASE_URL;
+            const newUrl = prompt('يرجى إدخال رابط الـ Backend الخاص ك:\n(مثلاً: https://your-app.onrender.com)', current);
+            if (newUrl !== null) {
+                localStorage.setItem('med_api_url', newUrl.trim().replace(/\/$/, ''));
+                window.location.reload();
             }
         }
 

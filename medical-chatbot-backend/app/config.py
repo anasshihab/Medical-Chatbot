@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # Application Settings
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://localhost:8000,https://*.netlify.app"
+    CORS_ORIGINS: str = "*"
     
     model_config = SettingsConfigDict(
         env_file=".env",
