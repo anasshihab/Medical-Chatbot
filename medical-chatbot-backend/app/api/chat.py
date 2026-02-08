@@ -17,6 +17,8 @@ from app.core.usage import increment_user_usage, increment_guest_usage, get_or_c
 from app.utils.constants import PlanType, PLAN_LIMITS
 
 router = APIRouter(prefix="/api", tags=["Chat"])
+import logging
+logger = logging.getLogger(__name__)
 
 
 @router.post("/chat")
@@ -94,6 +96,9 @@ async def chat(
     db.add(user_message)
     db.commit()
     
+    # Log user input
+    logger.info(f"User Input (ConvID: {conversation.id}): {request.message}")
+    
     # Increment usage count
     if current_user:
         increment_user_usage(db, current_user.id)
@@ -103,13 +108,26 @@ async def chat(
     # Process message with agent
     agent = MedicalChatAgent()
     
+    # Convert attachments to dict format if present
+    attachments_data = None
+    if request.attachments:
+        attachments_data = [
+            {
+                "file_data": att.file_data,
+                "file_type": att.file_type,
+                "file_name": att.file_name,
+                "file_size": att.file_size
+            }
+            for att in request.attachments
+        ]
+    
     async def event_stream():
         """Stream events to client"""
         assistant_message_content = ""
         metadata = {}
         
         try:
-            async for chunk in agent.process_message(request.message, conversation_history):
+            async for chunk in agent.process_message(request.message, conversation_history, attachments_data):
                 # Send chunk as Server-Sent Event
                 if chunk["type"] == "content":
                     assistant_message_content += chunk["data"]
@@ -129,6 +147,9 @@ async def chat(
                         content=assistant_message_content,
                         meta_data=metadata
                     )
+                    
+                    # Log assistant output
+                    logger.info(f"Assistant Output (ConvID: {conversation.id}): {assistant_message_content[:200]}...") # Log first 200 chars to avoid clutter
                     db.add(assistant_message)
                     
                     # Update conversation title if first exchange

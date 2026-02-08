@@ -1,205 +1,196 @@
-"""Main agent orchestrator"""
-from typing import AsyncGenerator, List, Dict, Optional
+"""Main agent orchestrator - Optimized for stable performance and citations"""
+from typing import AsyncGenerator, List, Dict, Optional, Any
 import json
-from app.agent.streaming import StreamingClient
-from app.agent.decision_maker import DecisionMaker
+import logging
+from openai import AsyncOpenAI
+from app.config import settings
 from app.agent.prompt_builder import get_system_prompt
-from app.tools.keyword_search import KeywordSearchTool
+from app.tools.search import SearchTool
 from app.tools.symptom_checker import SymptomCheckerTool
 from app.safety.emergency_detector import is_emergency, detect_special_cases
-from app.safety.responses import get_emergency_response, get_boundary_reminder
-from app.safety.content_normalizer import normalize_search_results
+from app.safety.responses import get_emergency_response
 
+# Global client for efficiency
+client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+logger = logging.getLogger(__name__)
 
 class MedicalChatAgent:
-    """Main agent coordinating safety checks, tools, and responses"""
+    """Stable Agentic implementation with tool execution and citations"""
     
     def __init__(self):
-        self.streaming_client = StreamingClient()
-        self.decision_maker = DecisionMaker()
-        self.keyword_search = KeywordSearchTool()
+        self.search_tool = SearchTool()
         self.symptom_checker = SymptomCheckerTool()
-    
+        self.tools_schema = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "medical_search",
+                    "description": "Search trusted medical sources for conditions, treatments, and health info.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "The search query"}
+                        },
+                        "required": ["query"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "check_symptoms",
+                    "description": "Analyze symptoms using a medical database.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "symptoms": {"type": "array", "items": {"type": "string"}},
+                            "age": {"type": "integer"},
+                            "gender": {"type": "string", "enum": ["male", "female"]}
+                        },
+                        "required": ["symptoms"]
+                    }
+                }
+            }
+        ]
+
     async def process_message(
         self,
         user_message: str,
-        conversation_history: List[Dict[str, str]] = None
+        conversation_history: List[Dict[str, str]] = None,
+        attachments: Optional[List[Dict[str, Any]]] = None
     ) -> AsyncGenerator[Dict, None]:
-        """
-        Process user message and stream response
-        
-        Args:
-            user_message: User's message
-            conversation_history: Previous messages in conversation
-        
-        Yields:
-            Chunks in format: {"type": "content"|"metadata"|"done", "data": ...}
-        """
         conversation_history = conversation_history or []
         
-        # 1. Safety check - Emergency detection
-        if is_emergency(user_message):
-            special_cases = detect_special_cases(user_message)
-            emergency_response = get_emergency_response(
-                keyword=user_message,
-                special_cases=special_cases
+        # Process file attachments if any
+        enriched_message = user_message
+        if attachments:
+            from app.utils.file_processor import FileProcessor
+            
+            yield {"type": "metadata", "data": {"status": "processing_files", "count": len(attachments)}}
+            
+            file_results = []
+            for attachment in attachments:
+                result = await FileProcessor.process_file(
+                    file_data=attachment.get("file_data"),
+                    file_type=attachment.get("file_type"),
+                    file_name=attachment.get("file_name"),
+                    user_message=user_message
+                )
+                file_results.append(result)
+                
+                # Enrich user message with file analysis
+                if result.get("success"):
+                    if result.get("type") == "image":
+                        enriched_message += f"\n\n📷 تحليل الصورة ({result.get('file_name')}):\n{result.get('analysis')}"
+                    elif result.get("type") == "audio":
+                        enriched_message += f"\n\n🎤 النص المسموع ({result.get('file_name')}):\n{result.get('transcription')}"
+                    elif result.get("type") == "document":
+                        enriched_message += f"\n\n📄 محتوى المستند ({result.get('file_name')}):\n{result.get('text')}"
+                else:
+                    yield {"type": "content", "data": f"\n⚠️ خطأ في معالجة الملف {result.get('file_name')}: {result.get('error')}\n\n"}
+            
+            yield {"type": "metadata", "data": {"files_processed": file_results}}
+        
+        # 1. Immediate Safety Check
+        if is_emergency(enriched_message):
+            resp = get_emergency_response(
+                keyword=user_message, 
+                special_cases=detect_special_cases(user_message),
+                user_message=user_message
+            )
+            yield {"type": "metadata", "data": {"is_emergency": True}}
+            yield {"type": "content", "data": resp}
+            yield {"type": "done", "data": {"tokens_used": 0}}
+            return
+
+        # 2. Build Messages
+        messages = [{"role": "system", "content": get_system_prompt()}]
+        for msg in conversation_history[-50:]:  # Context window (approx 25 turns)
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        messages.append({"role": "user", "content": enriched_message})
+
+        # 3. Agent Loop (Handled via stable OpenAI SDK)
+        try:
+            # Step A: Initial Call to see if tools are needed
+            response = await client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                tools=self.tools_schema,
+                tool_choice="auto"
             )
             
-            # Send emergency response immediately
-            yield {
-                "type": "metadata",
-                "data": {"is_emergency": True, "special_cases": special_cases}
-            }
-            
-            yield {
-                "type": "content",
-                "data": emergency_response
-            }
-            
-            yield {
-                "type": "done",
-                "data": {
-                    "is_emergency": True,
-                    "tokens_used": len(emergency_response.split())
-                }
-            }
-            return
-        
-        # 2. Decide action
-        decision = self.decision_maker.decide_action(user_message, conversation_history)
-        
-        # Send metadata about decision
-        yield {
-            "type": "metadata",
-            "data": {
-                "action": decision["action"],
-                "reason": decision["reason"]
-            }
-        }
-        
-        # 3. Execute action
-        tool_results = None
-        sources = []
-        
-        if decision["action"] == "keyword_search":
-            # Execute keyword search
-            search_query = decision["params"].get("search_query", user_message)
-            tool_result = await self.keyword_search.execute(search_query=search_query)
-            
-            if tool_result.success:
-                # POST-SEARCH SAFETY NORMALIZATION
-                # تنظيف المحتوى من التشخيصات والأدوية قبل إرساله للذكاء الاصطناعي
-                tool_results = normalize_search_results(tool_result.data)
-                sources = tool_result.sources
+            message = response.choices[0].message
+            tool_calls = message.tool_calls
+
+            if tool_calls:
+                messages.append(message)
+                for tool_call in tool_calls:
+                    function_name = tool_call.function.name
+                    args = json.loads(tool_call.function.arguments)
+                    
+                    yield {"type": "metadata", "data": {"tool_used": function_name, "status": "executing"}}
+                    
+                    # Execute Tools
+                    tool_result = ""
+                    if function_name == "medical_search":
+                        exec_result = await self.search_tool.execute(args.get("query"))
+                        if exec_result.success:
+                            tool_result = json.dumps(exec_result.data)
+                            yield {"type": "metadata", "data": {"sources": exec_result.sources}}
+                        else:
+                            tool_result = f"Error searching: {exec_result.error}"
+                            
+                    elif function_name == "check_symptoms":
+                        exec_result = await self.symptom_checker.execute(**args)
+                        if exec_result.success:
+                            tool_result = json.dumps(exec_result.data)
+                        else:
+                            tool_result = f"Error checking symptoms: {exec_result.error}"
+
+                    messages.append({
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": function_name,
+                        "content": tool_result,
+                    })
+
+                # Step B: Final Generation after tool results
+                stream = await client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    stream=True
+                )
                 
-                # Send tool results as metadata
-                yield {
-                    "type": "metadata",
-                    "data": {
-                        "tool_used": "keyword_search",
-                        "sources": sources
-                    }
-                }
-        
-        elif decision["action"] == "symptom_checker":
-            # Execute symptom checker
-            symptoms = decision["params"].get("symptoms", [user_message])
-            tool_result = await self.symptom_checker.execute(symptoms=symptoms)
-            
-            if tool_result.success:
-                tool_results = tool_result.data
-                sources = tool_result.sources
+                full_content = ""
+                async for chunk in stream:
+                    if not chunk.choices:
+                        continue
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        full_content += content
+                        yield {"type": "content", "data": content}
                 
-                # Send tool results as metadata
-                yield {
-                    "type": "metadata",
-                    "data": {
-                        "tool_used": "symptom_checker",
-                        "sources": sources
-                    }
-                }
-        
-        elif decision["action"] == "direct_response":
-            # Direct response provided in decision
-            response = decision["params"].get("response", "")
+                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
             
-            yield {
-                "type": "content",
-                "data": response
-            }
-            
-            yield {
-                "type": "done",
-                "data": {"tokens_used": len(response.split())}
-            }
-            return
-        
-        # 4. Generate response with OpenAI
-        messages = self._prepare_messages(
-            user_message,
-            conversation_history,
-            tool_results,
-            sources
-        )
-        
-        system_prompt = get_system_prompt()
-        
-        # Stream response
-        full_response = ""
-        async for chunk in self.streaming_client.stream_chat(messages, system_prompt):
-            full_response += chunk
-            yield {
-                "type": "content",
-                "data": chunk
-            }
-        
-        # Add boundary reminder if needed
-        if any(keyword in user_message.lower() for keyword in ["diagnose", "medication", "prescribe"]):
-            boundary_reminder = get_boundary_reminder()
-            yield {
-                "type": "content",
-                "data": boundary_reminder
-            }
-            full_response += boundary_reminder
-        
-        # 5. Send completion metadata
-        yield {
-            "type": "done",
-            "data": {
-                "tokens_used": len(full_response.split()),
-                "sources": sources,
-                "tool_used": decision["action"] if decision["action"] in ["keyword_search", "symptom_checker"] else None
-            }
-        }
-    
-    def _prepare_messages(
-        self,
-        user_message: str,
-        conversation_history: List[Dict[str, str]],
-        tool_results: any = None,
-        sources: List[Dict] = None
-    ) -> List[Dict[str, str]]:
-        """Prepare messages for OpenAI including tool results"""
-        messages = []
-        
-        # Add conversation history
-        for msg in conversation_history[-5:]:  # Last 5 messages for context
-            messages.append({
-                "role": msg["role"],
-                "content": msg["content"]
-            })
-        
-        # Add current user message with tool context if available
-        user_content = user_message
-        
-        if tool_results:
-            # Inject tool results into context
-            tool_context = f"\n\n---\n**Information from trusted sources:**\n{json.dumps(tool_results, indent=2)}\n---\n"
-            user_content = f"{user_message}{tool_context}"
-        
-        messages.append({
-            "role": "user",
-            "content": user_content
-        })
-        
-        return messages
+            else:
+                # Direct response (no tools needed)
+                # Re-run with stream for direct speed
+                stream = await client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    stream=True
+                )
+                full_content = ""
+                async for chunk in stream:
+                    if not chunk.choices:
+                        continue
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        full_content += content
+                        yield {"type": "content", "data": content}
+                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
+
+        except Exception as e:
+            logger.error(f"Agent error: {str(e)}")
+            yield {"type": "content", "data": f"I apologize, an error occurred: {str(e)}. Please try again later."}
+            yield {"type": "done", "data": {"error": str(e)}}

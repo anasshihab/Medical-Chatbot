@@ -14,6 +14,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Setup logging
+from app.core.logging_config import setup_logging
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    setup_logging()
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

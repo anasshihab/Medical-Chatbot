@@ -1,152 +1,2216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Medical Chat</title>
-    <!-- Simple Bootstrap CSS -->
+    <title>WebTeb - مساعدك الطبي الذكي | إجابات طبية موثوقة</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* WebTeb Vivid Palette */
+            --webteb-cyan: #18c1f5;
+            --webteb-glow: #60d6fa;
+            --webteb-dark-cyan: #009abb;
+
+            /* Richer Backgrounds (No more plain white) */
+            --bg-deep: #e0f7ff;
+            --bg-glass: rgba(240, 253, 255, 0.85);
+            --bg-card: rgba(225, 248, 255, 0.6);
+
+            --text-dark: #1a4a5e;
+            --text-med: #356b82;
+        }
+
         body {
-            padding-top: 50px;
-            background-color: #f8f9fa;
+            font-family: 'Almarai', 'Inter', sans-serif;
+            /* Vibrant Gradient Background */
+            background: radial-gradient(circle at 50% 10%, #f0fcff 0%, #d4f1fa 40%, #b8e6f5 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            cursor: default;
+            /* Reverting to default cursor for better usability with complex anims */
         }
 
-        .chat-container {
-            max-width: 800px;
-            margin: 0 auto;
+        /* 
+         * =========================================
+         *  VIBRANT LIVE ANIMATION: NEURAL NETWORK
+         * =========================================
+         */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 
+         * =========================================
+         *  UI COMPONENTS
+         * =========================================
+         */
+
+        /* Header - Tinted Glass */
+        .top-header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 15px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(24, 193, 245, 0.2);
+            box-shadow: 0 4px 30px rgba(24, 193, 245, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .logo-main {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Inter', 'Almarai', sans-serif;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-web {
+            color: #18c1f5;
+        }
+
+        .logo-teb {
+            color: #2d9cae;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--text-med);
+            opacity: 0.75;
+            letter-spacing: 0.3px;
+            font-family: 'Almarai', sans-serif;
+        }
+
+        /* Main Content - Floating Glass Card */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-card {
+            /* More prominent tint in white area */
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(230, 250, 255, 0.9));
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px 45px;
+            max-width: 950px;
+            width: 100%;
+            box-shadow:
+                0 20px 50px rgba(24, 193, 245, 0.15),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transform-style: preserve-3d;
+            animation: floatCard 6s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .greeting-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--webteb-dark-cyan) 0%, var(--webteb-cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(24, 193, 245, 0.2));
+        }
+
+        .greeting-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-med);
+            text-align: center;
+            margin-bottom: 50px;
+            font-weight: 500;
+        }
+
+        /* Chips - Glossy & Vibrant */
+        .topics-scroll-container {
+            overflow: hidden;
+            margin: 0 -20px 45px -20px;
+            padding: 20px 0;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .topics-row {
+            display: flex;
+            gap: 0px;
+            /* Remove gap for seamless infinite scroll */
+            width: max-content;
+            animation: scrollRight 40s linear infinite;
+        }
+
+        .topics-row.reverse {
+            animation-name: scrollLeft;
+        }
+
+        /* Pause animation on hover */
+        .topics-row:hover {
+            animation-play-state: paused;
+        }
+
+        /* Different speeds for variety */
+        .topics-row-slow {
+            animation-duration: 60s;
+            /* Slowest */
+        }
+
+        .topics-row-medium {
+            animation-duration: 40s;
+            /* Medium */
+        }
+
+        .topics-row-fast {
+            animation-duration: 25s;
+            /* Fastest */
+        }
+
+
+        /* Scroll RIGHT animation (for 3 sets, moves left) */
+        @keyframes scrollRight {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-33.33%);
+                /* Move by 1/3 for 3-set loop */
+            }
+        }
+
+        /* Scroll LEFT animation (reverse direction) */
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(-33.33%);
+                /* Start offset */
+            }
+
+            100% {
+                transform: translateX(0);
+                /* Move back */
+            }
+        }
+
+        .topic-chip {
+            /* Prominent colored background */
+            background: linear-gradient(135deg, #ffffff 0%, #e0f6ff 100%);
+            color: var(--webteb-dark-cyan);
+            border: 1px solid rgba(24, 193, 245, 0.3);
+            border-radius: 50px;
+            padding: 12px 28px;
+            margin-right: 15px;
+            /* Spacing between chips */
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(24, 193, 245, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-chip:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: linear-gradient(135deg, var(--webteb-cyan) 0%, var(--webteb-dark-cyan) 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(24, 193, 245, 0.4);
+            border-color: transparent;
+        }
+
+        /* Search Input - glowing */
+        .search-container {
+            position: relative;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            /* RTL specific padding: larger on left for send button, larger on right for attach + voice buttons */
+            padding: 22px 140px 22px 70px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow:
+                inset 0 2px 5px rgba(24, 193, 245, 0.1),
+                0 5px 20px rgba(24, 193, 245, 0.15);
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+
+            .search-input:focus {
+                outline: none;
+                background: #ffffff;
+                box-shadow:
+                    0 0 0 3px rgba(24, 193, 245, 0.3),
+                    0 10px 30px rgba(24, 193, 245, 0.2);
+                transform: translateY(-2px);
+            }
+
+            .search-btn {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 50px;
+                height: 50px;
+                border-radius: 16px;
+                background: var(--webteb-cyan);
+                border: none;
+                color: white;
+                font-size: 1.2rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(24, 193, 245, 0.4);
+                z-index: 10;
+            }
+
+            .search-btn:hover {
+                transform: translateY(-50%) scale(1.1);
+                background: var(--webteb-dark-cyan);
+            }
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: #ffffff;
+            box-shadow:
+                0 0 0 3px rgba(24, 193, 245, 0.3),
+                0 10px 30px rgba(24, 193, 245, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: var(--webteb-cyan);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(24, 193, 245, 0.4);
+            z-index: 10;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            background: var(--webteb-dark-cyan);
+        }
+
+        /* Attach Button */
+        .attach-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: rgba(24, 193, 245, 0.1);
+            border: 2px solid var(--webteb-cyan);
+            color: var(--webteb-cyan);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .attach-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            background: var(--webteb-cyan);
+            color: white;
+        }
+
+        /* Voice Recording Button */
+        .voice-record-btn {
+            position: absolute;
+            right: 70px;
+            /* Position next to attach button */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: rgba(24, 193, 245, 0.1);
+            border: 2px solid var(--webteb-cyan);
+            color: var(--webteb-cyan);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .voice-record-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            background: var(--webteb-cyan);
+            color: white;
+        }
+
+        .voice-record-btn.listening {
+            background: #ff4444;
+            border-color: #ff4444;
+            color: white;
+            animation: pulse-recording 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-recording {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 15px rgba(255, 68, 68, 0);
+            }
+        }
+
+
+        /* File Preview Container */
+        .file-preview-container {
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(240, 251, 255, 0.5);
+            border-radius: 15px;
+            border: 1px solid rgba(24, 193, 245, 0.2);
+        }
+
+        .file-preview-container.active {
+            display: flex;
+        }
+
+        .file-preview-card {
+            position: relative;
+            padding: 10px 15px;
             background: white;
-            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(24, 193, 245, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 250px;
+            box-shadow: 0 2px 8px rgba(24, 193, 245, 0.1);
         }
 
-        .response-area {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #dee2e6;
+        .file-preview-card .file-icon {
+            font-size: 1.5rem;
+            color: var(--webteb-cyan);
+        }
+
+        .file-preview-card .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-preview-card .file-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-preview-card .file-size {
+            font-size: 0.75rem;
+            color: var(--text-med);
+        }
+
+        .file-preview-card .remove-file {
+            background: #ff4444;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            color: white;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .file-preview-card .remove-file:hover {
+            background: #cc0000;
+            transform: scale(1.1);
+        }
+
+        .file-preview-card img.file-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
             border-radius: 5px;
-            min-height: 100px;
-            background-color: #fcfcfc;
-            white-space: pre-wrap;
         }
 
-        .loading {
-            color: #6c757d;
-            font-style: italic;
+
+        /* 
+         * =========================================
+         *  NATURAL CURSOR WITH LIGHT TRAIL
+         * ========================================= 
+         */
+
+        /* Custom colored cursor using SVG */
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%2318c1f5" stroke="%23109dc7" stroke-width="1"><path d="M5 3l14 9-6 1-3 5z"/></svg>') 5 0, auto;
+        }
+
+        /* Override for clickable elements */
+        button,
+        a,
+        [onclick],
+        .topic-chip,
+        input[type="submit"] {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="%2318c1f5" stroke="%23109dc7" stroke-width="1"><path d="M10 3h4v8h7l-11 12-11-12h7z"/></svg>') 14 0, pointer;
+        }
+
+        input[type="text"],
+        textarea {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 10 24" fill="%2318c1f5"><rect x="4" width="2" height="24"/><rect y="0" width="10" height="3"/><rect y="21" width="10" height="3"/></svg>') 10 12, text;
+        }
+
+        /* Hide old cursor elements */
+        .cursor-dot,
+        .cursor-ring {
+            display: none;
+        }
+
+        /* Light Trail Particles */
+        .light-particle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(24, 193, 245, 0.8) 0%, rgba(24, 193, 245, 0.4) 50%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: particleFade 0.6s ease-out forwards;
+            box-shadow: 0 0 10px rgba(24, 193, 245, 0.6);
+        }
+
+        @keyframes particleFade {
+            0% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.3) translateY(-10px);
+                opacity: 0;
+            }
+        }
+
+        /* Glow pulse at cursor position */
+        .cursor-glow {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(24, 193, 245, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.6;
+            }
+        }
+
+        /* 
+         * =========================================
+         *  SCROLLING CHIPS - PAUSE ON HOVER
+         * ========================================= 
+         */
+
+        /* Pause scrolling when hovering over the container */
+        .topics-scroll-container:hover .topics-row {
+            animation-play-state: paused;
+        }
+
+        /* Individual chip hover keeps parent paused */
+        .topic-chip:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: linear-gradient(135deg, var(--webteb-cyan) 0%, var(--webteb-dark-cyan) 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(24, 193, 245, 0.4);
+            border-color: transparent;
+            z-index: 10;
+        }
+
+        /* Side Actions - Floating Bubbles */
+        .side-actions {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .action-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 1);
+            color: var(--webteb-cyan);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow:
+                0 10px 25px rgba(24, 193, 245, 0.2),
+                inset 0 0 0 2px rgba(24, 193, 245, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.15);
+            background: var(--webteb-cyan);
+            color: white;
+            box-shadow: 0 15px 35px rgba(24, 193, 245, 0.5);
+        }
+
+        a.action-btn {
+            text-decoration: none;
+        }
+
+        /* Messages Area */
+        .chat-messages {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            /* Tinted area inside the card */
+            background: rgba(240, 251, 255, 0.5);
+            border: 1px solid rgba(24, 193, 245, 0.1);
+            display: none;
+        }
+
+        .chat-messages.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .message-bubble {
+            padding: 15px 25px;
+            border-radius: 18px;
+            line-height: 1.6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, var(--webteb-cyan), var(--webteb-dark-cyan));
+            color: white;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: var(--text-dark);
+            border-bottom-right-radius: 2px;
+            border: 1px solid rgba(24, 193, 245, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Voice Recording Notification Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+
+        /* ==========================================
+         * CONVERSATION HISTORY SIDEBAR
+         * ========================================== */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 340px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            box-shadow: -6px 0 30px rgba(24, 193, 245, 0.15);
+            z-index: 2000;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid rgba(24, 193, 245, 0.2);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.75rem 1.5rem;
+            border-bottom: 2px solid rgba(24, 193, 245, 0.15);
+            background: linear-gradient(135deg, var(--webteb-cyan) 0%, var(--webteb-dark-cyan) 100%);
+            color: white;
+        }
+
+        .sidebar-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .close-sidebar-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+            line-height: 1;
+            font-weight: 300;
+        }
+
+        .close-sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .new-conversation-btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 14px;
+            color: var(--webteb-dark-cyan);
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            transition: all 0.3s ease;
+            font-family: 'Almarai', sans-serif;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-conversation-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .new-conversation-btn i {
+            font-size: 1.2rem;
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--webteb-cyan) transparent;
+        }
+
+        .conversations-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .conversations-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .conversations-list::-webkit-scrollbar-thumb {
+            background: var(--webteb-cyan);
+            border-radius: 3px;
+        }
+
+        .conversation-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .conversation-group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-med);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.875rem;
+            padding: 0 0.625rem;
+        }
+
+        .conversation-item {
+            padding: 1rem 1.125rem;
+            margin-bottom: 0.625rem;
+            background: white;
+            border: 2px solid rgba(24, 193, 245, 0.15);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .conversation-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(24, 193, 245, 0.1), transparent);
+            transition: right 0.5s ease;
+        }
+
+        .conversation-item:hover::before {
+            right: 100%;
+        }
+
+        .conversation-item:hover {
+            border-color: var(--webteb-cyan);
+            transform: translateX(-5px);
+            box-shadow: 0 6px 16px rgba(24, 193, 245, 0.2);
+        }
+
+        .conversation-item.active {
+            background: linear-gradient(135deg, rgba(24, 193, 245, 0.1) 0%, rgba(0, 154, 187, 0.05) 100%);
+            border-color: var(--webteb-cyan);
+            box-shadow: 0 4px 12px rgba(24, 193, 245, 0.15);
+        }
+
+        .conversation-item-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.375rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item-preview {
+            font-size: 0.85rem;
+            color: var(--text-med);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+        }
+
+        .conversation-item-time {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .delete-conv-btn {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+
+        .conversation-item:hover .delete-conv-btn {
+            opacity: 1;
+        }
+
+        .delete-conv-btn:hover {
+            background: #ff4444;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .sidebar-toggle-btn {
+            position: fixed;
+            right: 1.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: 2px solid var(--webteb-cyan);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(24, 193, 245, 0.25);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1999;
+            animation: pulseButton 2.5s ease-in-out infinite;
+        }
+
+        .sidebar-toggle-btn:hover {
+            transform: translateY(-50%) scale(1.15);
+            box-shadow: 0 8px 25px rgba(24, 193, 245, 0.35);
+            background: var(--webteb-cyan);
+        }
+
+        .sidebar-toggle-btn:hover i {
+            color: white;
+        }
+
+        .sidebar-toggle-btn i {
+            font-size: 1.5rem;
+            color: var(--webteb-cyan);
+            transition: color 0.3s ease;
+        }
+
+        @keyframes pulseButton {
+
+            0%,
+            100% {
+                box-shadow: 0 6px 20px rgba(24, 193, 245, 0.25);
+            }
+
+            50% {
+                box-shadow: 0 6px 20px rgba(24, 193, 245, 0.45), 0 0 0 10px rgba(24, 193, 245, 0.1);
+            }
+        }
+
+        .sidebar.open~.sidebar-toggle-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .side-actions {
+                display: none;
+            }
+
+            .content-card {
+                padding: 30px 20px;
+            }
+
+            .greeting-title {
+                font-size: 2rem;
+            }
+
+            /* Sidebar responsive adjustments */
+            .sidebar {
+                width: 300px;
+            }
+
+            .sidebar-toggle-btn {
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+            }
+
+            .sidebar-toggle-btn i {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .sidebar-header {
+                padding: 1.25rem 1rem;
+            }
+
+            .sidebar-title {
+                font-size: 1.2rem;
+            }
+
+            .sidebar-toggle-btn {
+                right: 0.75rem;
+                width: 48px;
+                height: 48px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <div class="chat-container">
-            <h2 class="mb-4 text-center">Medical Chatbot</h2>
+    <!-- CONVERSATION HISTORY SIDEBAR -->
+    <aside class="sidebar" id="conversationsSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <span>المحادثات السابقة</span>
+                <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="إغلاق">
+                    ✕
+                </button>
+            </div>
+            <button class="new-conversation-btn" id="newConversationBtn">
+                <i class="fas fa-plus"></i>
+                <span>محادثة جديدة</span>
+            </button>
+        </div>
 
-            <div class="mb-3">
-                <label for="userMessage" class="form-label">Type your medical question:</label>
-                <textarea class="form-control" id="userMessage" rows="4"
-                    placeholder="e.g., What are the symptoms of flu?"></textarea>
+        <div class="conversations-list" id="conversationsList">
+            <!-- Today -->
+            <div class="conversation-group">
+                <div class="conversation-group-title">اليوم</div>
+                <div class="conversation-item active" data-conversation-id="1">
+                    <div class="conversation-item-title">🩺 أعراض نزلات البرد</div>
+                    <div class="conversation-item-preview">ما هي الأعراض الشائعة لنزلات البرد؟</div>
+                    <div class="conversation-item-time">منذ ساعة</div>
+                </div>
+                <div class="conversation-item" data-conversation-id="2">
+                    <div class="conversation-item-title">💊 فوائد فيتامين د</div>
+                    <div class="conversation-item-preview">ما هي الفوائد الصحية لفيتامين د؟</div>
+                    <div class="conversation-item-time">منذ 3 ساعات</div>
+                </div>
             </div>
 
-            <button id="submitBtn" class="btn btn-primary w-100 mb-4">Submit Question</button>
+            <!-- Yesterday -->
+            <div class="conversation-group">
+                <div class="conversation-group-title">أمس</div>
+                <div class="conversation-item" data-conversation-id="3">
+                    <div class="conversation-item-title">🏃 تمارين للظهر</div>
+                    <div class="conversation-item-preview">ما هي أفضل التمارين لآلام الظهر؟</div>
+                    <div class="conversation-item-time">أمس، 6:30 م</div>
+                </div>
+                <div class="conversation-item" data-conversation-id="4">
+                    <div class="conversation-item-title">🥗 الأكل الصحي</div>
+                    <div class="conversation-item-preview">كيف يمكنني تحسين نظامي الغذائي؟</div>
+                    <div class="conversation-item-time">أمس، 2:15 م</div>
+                </div>
+            </div>
 
-            <div id="responseContainer" style="display: none;">
-                <h4>Response:</h4>
-                <div id="botResponse" class="response-area"></div>
+            <!-- Last 7 Days -->
+            <div class="conversation-group">
+                <div class="conversation-group-title">آخر 7 أيام</div>
+                <div class="conversation-item" data-conversation-id="5">
+                    <div class="conversation-item-title">😴 النوم الصحي</div>
+                    <div class="conversation-item-preview">كم ساعة نوم يحتاج الإنسان البالغ؟</div>
+                    <div class="conversation-item-time">منذ 3 أيام</div>
+                </div>
+                <div class="conversation-item" data-conversation-id="6">
+                    <div class="conversation-item-title">❤️ ضغط الدم</div>
+                    <div class="conversation-item-preview">ما هو ضغط الدم الطبيعي؟</div>
+                    <div class="conversation-item-time">منذ 5 أيام</div>
+                </div>
+            </div>
+
+            <!-- Older -->
+            <div class="conversation-group">
+                <div class="conversation-group-title">أقدم</div>
+                <div class="conversation-item" data-conversation-id="7">
+                    <div class="conversation-item-title">🤕 الصداع النصفي</div>
+                    <div class="conversation-item-preview">ما هي أسباب الصداع النصفي؟</div>
+                    <div class="conversation-item-time">منذ أسبوعين</div>
+                </div>
+                <div class="conversation-item" data-conversation-id="8">
+                    <div class="conversation-item-title">🦷 العناية بالأسنان</div>
+                    <div class="conversation-item-preview">كيف أحافظ على صحة أسناني؟</div>
+                    <div class="conversation-item-time">منذ شهر</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="فتح المحادثات السابقة">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <!-- VIBRANT LIVE CANVAS ANIMATION -->
+    <div id="canvas-container">
+        <canvas id="neuralCanvas"></canvas>
+    </div>
+
+    <!-- SIDE ACTIONS -->
+    <div class="side-actions">
+        <div class="action-btn"><i class="fas fa-home"></i></div>
+        <a href="https://www.webteb.com/symptoms" target="_blank" rel="noopener noreferrer" class="action-btn"
+            title="فحص الأعراض">
+            <i class="fas fa-stethoscope"></i>
+        </a>
+        <div class="action-btn"><i class="fas fa-cog"></i></div>
+    </div>
+
+    <!-- MAIN APP STRUCTURE -->
+    <div class="page-container d-flex flex-column min-vh-100">
+        <!-- Modern Header -->
+        <header class="top-header">
+            <div class="logo-container">
+                <div class="logo-main">
+                    <span class="logo-web">Web</span><span class="logo-teb">Teb</span>
+                </div>
+                <div class="logo-subtitle">مساعدك الطبي الذكي</div>
+            </div>
+            <div style="font-size: 1.5rem; color: var(--webteb-cyan); cursor: pointer;">
+                <i class="fas fa-bars"></i>
+            </div>
+        </header>
+
+        <!-- Centered Content -->
+        <div class="main-content">
+            <div class="content-card">
+                <h1 class="greeting-title">مساعدك الطبي الذكي</h1>
+                <p class="greeting-subtitle">إجابات دقيقة وموثوقة مدعومة بالذكاء الاصطناعي</p>
+
+                <!-- SCROLLING CHIPS (Rows) -->
+                <!-- SCROLLING CHIPS (Rows) -->
+                <div class="topics-scroll-container">
+                    <!-- Row 1 - Slow Speed -->
+                    <div class="topics-row topics-row-slow mb-3">
+                        <!-- Set 1 - 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🩺 تشخيص الأعراض</div>
+                        <div class="topic-chip" onclick="setInput(this)">💊 معلومات الأدوية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👶 صحة الطفل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤰 الحمل والولادة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 التغذية السليمة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫀 أمراض القلب</div>
+                        <div class="topic-chip" onclick="setInput(this)">💉 التطعيمات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩸 ضغط الدم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍬 السكري</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">😴 اضطرابات النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦴 صحة العظام</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الذاكرة والتركيز</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 تقوية المناعة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 صحة الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">👂 صحة الأذن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                        <!-- Set 2 - Duplicate 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🩺 تشخيص الأعراض</div>
+                        <div class="topic-chip" onclick="setInput(this)">💊 معلومات الأدوية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👶 صحة الطفل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤰 الحمل والولادة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 التغذية السليمة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫀 أمراض القلب</div>
+                        <div class="topic-chip" onclick="setInput(this)">💉 التطعيمات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩸 ضغط الدم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍬 السكري</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">😴 اضطرابات النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦴 صحة العظام</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الذاكرة والتركيز</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 تقوية المناعة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 صحة الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">👂 صحة الأذن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                        <!-- Set 3 - Third duplicate for 3-set loop -->
+                        <div class="topic-chip" onclick="setInput(this)">🩺 تشخيص الأعراض</div>
+                        <div class="topic-chip" onclick="setInput(this)">💊 معلومات الأدوية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👶 صحة الطفل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤰 الحمل والولادة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 التغذية السليمة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫀 أمراض القلب</div>
+                        <div class="topic-chip" onclick="setInput(this)">💉 التطعيمات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩸 ضغط الدم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍬 السكري</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">😴 اضطرابات النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦴 صحة العظام</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الذاكرة والتركيز</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 تقوية المناعة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 صحة الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">👂 صحة الأذن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                    </div>
+                    <!-- Row 2 - Medium Speed (Reverse) -->
+                    <div class="topics-row topics-row-medium reverse">
+                        <!-- Set 1 - 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 اللياقة البدنية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👵 صحة المسنين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 طب الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 أمراض الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧪 الفحوصات المخبرية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤸 تمارين الإطالة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الفواكه الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥛 منتجات الألبان</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ قياس الحرارة</div>
+                        <div class="topic-chip" onclick="setInput(this)">💧 شرب المياه</div>
+                        <div class="topic-chip" onclick="setInput(this)">🛌 جودة النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ التأمل واليوجا</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 المشروبات الدافئة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 السلطات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ رفع الأثقال</div>
+                        <div class="topic-chip" onclick="setInput(this)">🚴 ركوب الدراجات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏊 السباحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧖 الساونا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍯 العسل الطبيعي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥜 المكسرات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫒 زيت الزيتون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥑 الأفوكادو</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥦 الخضروات الخضراء</div>
+                        <!-- Set 2 - Duplicate 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 اللياقة البدنية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👵 صحة المسنين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 طب الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 أمراض الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧪 الفحوصات المخبرية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤸 تمارين الإطالة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الفواكه الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥛 منتجات الألبان</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ قياس الحرارة</div>
+                        <div class="topic-chip" onclick="setInput(this)">💧 شرب المياه</div>
+                        <div class="topic-chip" onclick="setInput(this)">🛌 جودة النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ التأمل واليوجا</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 المشروبات الدافئة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 السلطات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ رفع الأثقال</div>
+                        <div class="topic-chip" onclick="setInput(this)">🚴 ركوب الدراجات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏊 السباحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧖 الساونا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍯 العسل الطبيعي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥜 المكسرات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫒 زيت الزيتون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥑 الأفوكادو</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥦 الخضروات الخضراء</div>
+                        <!-- Set 3 - Third duplicate for 3-set loop -->
+                        <div class="topic-chip" onclick="setInput(this)">🧠 الصحة النفسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">💪 اللياقة البدنية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦠 الأمراض المعدية</div>
+                        <div class="topic-chip" onclick="setInput(this)">👵 صحة المسنين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦷 طب الأسنان</div>
+                        <div class="topic-chip" onclick="setInput(this)">👁️ صحة العيون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫁 أمراض الجهاز التنفسي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧪 الفحوصات المخبرية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ الحمى والعدوى</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩹 الإسعافات الأولية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧴 العناية بالبشرة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏃 الرياضة والصحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤸 تمارين الإطالة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الفواكه الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥛 منتجات الألبان</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌡️ قياس الحرارة</div>
+                        <div class="topic-chip" onclick="setInput(this)">💧 شرب المياه</div>
+                        <div class="topic-chip" onclick="setInput(this)">🛌 جودة النوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ التأمل واليوجا</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 المشروبات الدافئة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥗 السلطات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ رفع الأثقال</div>
+                        <div class="topic-chip" onclick="setInput(this)">🚴 ركوب الدراجات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏊 السباحة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧖 الساونا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍯 العسل الطبيعي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥜 المكسرات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫒 زيت الزيتون</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥑 الأفوكادو</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥦 الخضروات الخضراء</div>
+                    </div>
+                    <!-- Row 3 - Fast Speed -->
+                    <div class="topics-row topics-row-fast mb-3">
+                        <!-- Set 1 - 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات والمكملات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ اليوغا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧬 الأمراض الوراثية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩻 الأشعة والتصوير</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧑‍⚕️ متى أزور الطبيب</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌿 الطب البديل</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚕️ الجراحة والعمليات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ بناء العضلات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍊 فيتامين C</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌞 فيتامين D</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥤 المشروبات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 الشاي الأخضر</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌰 البروتين النباتي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍌 البوتاسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥚 البروتين الحيواني</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥕 البيتا كاروتين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍓 مضادات الأكسدة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧉 المشروبات العشبية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥥 الدهون الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الريسفيراترول</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥬 الحديد والكالسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫐 الأنثوسيانين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌶️ تنشيط الدورة الدموية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍋 فيتامين C الطبيعي</div>
+                        <!-- Set 2 - Duplicate 30 chips -->
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات والمكملات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ اليوغا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧬 الأمراض الوراثية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩻 الأشعة والتصوير</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧑‍⚕️ متى أزور الطبيب</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌿 الطب البديل</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚕️ الجراحة والعمليات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ بناء العضلات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍊 فيتامين C</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌞 فيتامين D</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥤 المشروبات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 الشاي الأخضر</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌰 البروتين النباتي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍌 البوتاسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥚 البروتين الحيواني</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥕 البيتا كاروتين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍓 مضادات الأكسدة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧉 المشروبات العشبية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥥 الدهون الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الريسفيراترول</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥬 الحديد والكالسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫐 الأنثوسيانين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌶️ تنشيط الدورة الدموية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍋 فيتامين C الطبيعي</div>
+                        <!-- Set 3 - Third duplicate for 3-set loop -->
+                        <div class="topic-chip" onclick="setInput(this)">🍎 الفيتامينات والمكملات</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚖️ إنقاص الوزن</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧘‍♀️ اليوغا والاسترخاء</div>
+                        <div class="topic-chip" onclick="setInput(this)">🤧 الحساسية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🦵 آلام المفاصل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧬 الأمراض الوراثية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🩻 الأشعة والتصوير</div>
+                        <div class="topic-chip" onclick="setInput(this)">💆 الصداع والشقيقة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫃 صحة المرأة</div>
+                        <div class="topic-chip" onclick="setInput(this)">👨 صحة الرجل</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧑‍⚕️ متى أزور الطبيب</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌿 الطب البديل</div>
+                        <div class="topic-chip" onclick="setInput(this)">⚕️ الجراحة والعمليات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🏋️ بناء العضلات</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍊 فيتامين C</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌞 فيتامين D</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥤 المشروبات الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍵 الشاي الأخضر</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌰 البروتين النباتي</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍌 البوتاسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥚 البروتين الحيواني</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥕 البيتا كاروتين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍓 مضادات الأكسدة</div>
+                        <div class="topic-chip" onclick="setInput(this)">🧉 المشروبات العشبية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥥 الدهون الصحية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍇 الريسفيراترول</div>
+                        <div class="topic-chip" onclick="setInput(this)">🥬 الحديد والكالسيوم</div>
+                        <div class="topic-chip" onclick="setInput(this)">🫐 الأنثوسيانين</div>
+                        <div class="topic-chip" onclick="setInput(this)">🌶️ تنشيط الدورة الدموية</div>
+                        <div class="topic-chip" onclick="setInput(this)">🍋 فيتامين C الطبيعي</div>
+                    </div>
+                </div>
+
+                <!-- SEARCH -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <button class="search-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                        <input type="text" class="search-input" id="userInput"
+                            placeholder="بماذا تشعر اليوم؟ اكتب سؤالك هنا...">
+                        <!-- File attachment button -->
+                        <button class="attach-btn" id="attachBtn" title="إرفاق ملف (صورة، صوت، مستند)">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <!-- Voice recording button -->
+                        <button class="voice-record-btn" id="voiceBtn" title="التسجيل الصوتي (اضغط للتحدث)">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <!-- Hidden file input -->
+                        <input type="file" id="fileInput" accept="image/*,audio/*,.txt,.pdf" multiple
+                            style="display: none;">
+                    </div>
+                </div>
+
+                <!-- File Preview Area -->
+                <div class="file-preview-container" id="filePreviewContainer">
+                    <!-- File previews will appear here -->
+                </div>
+
+                <!-- CHAT AREA -->
+                <div class="chat-messages" id="chatArea">
+                    <!-- Messages will appear here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        const submitBtn = document.getElementById('submitBtn');
-        const userMessage = document.getElementById('userMessage');
-        const responseContainer = document.getElementById('responseContainer');
-        const botResponse = document.getElementById('botResponse');
+        // Configure marked to open links in new tabs
+        marked.setOptions({
+            renderer: new marked.Renderer()
+        });
 
-        // Generate a random guest session ID if not exists
-        let guestSessionId = localStorage.getItem('guestSessionId');
-        if (!guestSessionId) {
-            guestSessionId = 'guest-' + Math.random().toString(36).substring(2, 15);
-            localStorage.setItem('guestSessionId', guestSessionId);
+        // Override link renderer to add target="_blank" and rel attributes
+        const renderer = new marked.Renderer();
+        const linkRenderer = renderer.link;
+        renderer.link = (href, title, text) => {
+            const html = linkRenderer.call(renderer, href, title, text);
+            return html.replace(/^<a /, '<a target="_blank" rel="noopener noreferrer" ');
+        };
+        marked.setOptions({ renderer });
+
+        // --- 1. SET UP CANVAS ANIMATION (Neural Network) ---
+        const canvas = document.getElementById('neuralCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        const particleCount = 60; // Vibrant amount
+        const connectionDistance = 150;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.size = Math.random() * 3 + 2;
+                this.color = `rgba(24, 193, 245, ${Math.random() * 0.5 + 0.2})`; // Vivid Cyan
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                // Glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#18c1f5";
+            }
         }
 
-        submitBtn.addEventListener('click', async () => {
-            const message = userMessage.value.trim();
-            if (!message) return;
+        // Init Particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
 
-            // Reset UI
-            responseContainer.style.display = 'block';
-            botResponse.innerHTML = '<span class="loading">Thinking...</span>';
-            submitBtn.disabled = true;
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
 
-            let fullResponse = '';
+            // Draw connections first
+            for (let i = 0; i < particles.length; i++) {
+                let p1 = particles[i];
+                p1.update();
+                p1.draw();
+
+                for (let j = i; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p1.x - p2.x;
+                    let dy = p1.y - p2.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(24, 193, 245, ${1 - dist / connectionDistance})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0; // Reset shadow for lines performance
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+
+        // --- 1.5 LIGHT TRAIL ANIMATION ---
+        let mouseX = 0, mouseY = 0;
+        let particleCounter = 0;
+
+        // Create persistent glow element
+        const cursorGlow = document.createElement('div');
+        cursorGlow.className = 'cursor-glow';
+        document.body.appendChild(cursorGlow);
+
+        // Track mouse position
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Update glow position
+            cursorGlow.style.left = mouseX + 'px';
+            cursorGlow.style.top = mouseY + 'px';
+
+            // Spawn light particles (not every frame for performance)
+            particleCounter++;
+            if (particleCounter % 2 === 0) { // Spawn every 2nd movement
+                createLightParticle(mouseX, mouseY);
+            }
+        });
+
+        function createLightParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'light-particle';
+
+            // Random offset for natural spread
+            const offsetX = (Math.random() - 0.5) * 15;
+            const offsetY = (Math.random() - 0.5) * 15;
+            const size = Math.random() * 4 + 4; // 4-8px
+
+            particle.style.left = (x + offsetX) + 'px';
+            particle.style.top = (y + offsetY) + 'px';
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+
+            document.body.appendChild(particle);
+
+            // Auto-remove after animation
+            setTimeout(() => {
+                particle.remove();
+            }, 600);
+        }
+
+
+        // --- 2. CHAT FUNCTIONALITY ---
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatArea = document.getElementById('chatArea');
+        let guestSessionId = localStorage.getItem('med_id') || 'u_' + Date.now();
+        localStorage.setItem('med_id', guestSessionId);
+        let currentConversationId = null;
+
+        function setInput(el) {
+            userInput.value = el.innerText.substring(2); // Remove emoji
+            userInput.focus();
+        }
+
+        // --- FILE ATTACHMENT FUNCTIONALITY ---
+        const attachBtn = document.getElementById('attachBtn');
+        const fileInput = document.getElementById('fileInput');
+        const filePreviewContainer = document.getElementById('filePreviewContainer');
+        let selectedFiles = [];
+
+        // Click attach button to open file picker
+        attachBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                // Validate file size (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`الملف ${file.name} كبير جداً. الحد الأقصى 10 ميجابايت.`);
+                    return;
+                }
+
+                // Add to selected files
+                selectedFiles.push(file);
+
+                // Create preview
+                createFilePreview(file);
+            });
+
+            // Show preview container
+            if (selectedFiles.length > 0) {
+                filePreviewContainer.classList.add('active');
+            }
+
+            // Reset input
+            fileInput.value = '';
+        });
+
+        function createFilePreview(file) {
+            const card = document.createElement('div');
+            card.className = 'file-preview-card';
+            card.dataset.fileName = file.name;
+
+            // Determine icon based on file type
+            let icon = 'fa-file';
+            if (file.type.startsWith('image/')) {
+                icon = 'fa-image';
+            } else if (file.type.startsWith('audio/')) {
+                icon = 'fa-microphone';
+            } else if (file.type === 'application/pdf') {
+                icon = 'fa-file-pdf';
+            }
+
+            // Create thumbnail for images
+            let thumbnailHTML = `<i class="fas ${icon} file-icon"></i>`;
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = card.querySelector('.file-icon');
+                    if (img) {
+                        img.outerHTML = `<img src="${e.target.result}" class="file-thumbnail" alt="${file.name}">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            card.innerHTML = `
+                ${thumbnailHTML}
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${formatFileSize(file.size)}</div>
+                </div>
+                <button class="remove-file" onclick="removeFile('${file.name}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            filePreviewContainer.appendChild(card);
+        }
+
+        function removeFile(fileName) {
+            // Remove from selectedFiles array
+            selectedFiles = selectedFiles.filter(f => f.name !== fileName);
+
+            // Remove preview card
+            const card = document.querySelector(`.file-preview-card[data-file-name="${fileName}"]`);
+            if (card) {
+                card.remove();
+            }
+
+            // Hide container if no files
+            if (selectedFiles.length === 0) {
+                filePreviewContainer.classList.remove('active');
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 بايت';
+            const k = 1024;
+            const sizes = ['بايت', 'كيلوبايت', 'ميجابايت'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // Remove data URL prefix to get just base64
+                    const base64 = reader.result.split(',')[1];
+                    resolve({
+                        file_data: base64,
+                        file_type: file.type,
+                        file_name: file.name,
+                        file_size: file.size
+                    });
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        // --- VOICE RECOGNITION FUNCTIONALITY ---
+        const voiceBtn = document.getElementById('voiceBtn');
+        let recognition = null;
+        let isListening = false;
+
+        // Check if browser supports speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+
+            // Configure recognition
+            recognition.continuous = false; // Stop after user stops speaking
+            recognition.interimResults = true; // Show results as user speaks
+            recognition.lang = 'ar-SA'; // Arabic (Saudi Arabia) - will also detect English
+            recognition.maxAlternatives = 1;
+
+            // Start recording on button click
+            voiceBtn.addEventListener('click', () => {
+                if (isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            });
+
+            function startListening() {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    voiceBtn.classList.add('listening');
+
+                    // Update placeholder to show listening
+                    userInput.placeholder = '🎤 أنا أستمع... تحدث الآن';
+                    userInput.focus();
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                    showVoiceError('خطأ في بدء التسجيل');
+                }
+            }
+
+            function stopListening() {
+                recognition.stop();
+                isListening = false;
+                voiceBtn.classList.remove('listening');
+                userInput.placeholder = 'بماذا تشعر اليوم؟ اكتب سؤالك هنا...';
+            }
+
+            // Handle speech recognition results
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Update input with transcribed text
+                if (finalTranscript) {
+                    userInput.value = finalTranscript;
+                } else if (interimTranscript) {
+                    // Show interim results in lighter color
+                    userInput.value = interimTranscript;
+                }
+            };
+
+            // Handle end of speech
+            recognition.onend = () => {
+                stopListening();
+            };
+
+            // Handle errors
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopListening();
+
+                let errorMessage = 'حدث خطأ في التسجيل الصوتي';
+                switch (event.error) {
+                    case 'no-speech':
+                        errorMessage = 'لم يتم اكتشاف صوت. يرجى المحاولة مرة أخرى.';
+                        break;
+                    case 'audio-capture':
+                        errorMessage = 'لم يتم العثور على ميكروفون. يرجى التحقق من إعدادات الميكروفون.';
+                        break;
+                    case 'not-allowed':
+                        errorMessage = 'تم رفض إذن الميكروفون. يرجى السماح بالوصول إلى الميكروفون.';
+                        break;
+                    case 'network':
+                        errorMessage = 'خطأ في الاتصال بالشبكة.';
+                        break;
+                }
+                showVoiceError(errorMessage);
+            };
+
+            function showVoiceError(message) {
+                // Create temporary error notification
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = '⚠️ ' + message;
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ff4444;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    z-index: 10000;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                    font-size: 0.95rem;
+                    animation: slideDown 0.3s ease-out;
+                `;
+                document.body.appendChild(errorDiv);
+
+                setTimeout(() => {
+                    errorDiv.style.animation = 'slideUp 0.3s ease-out';
+                    setTimeout(() => errorDiv.remove(), 300);
+                }, 3000);
+            }
+
+        } else {
+            // Browser doesn't support speech recognition
+            voiceBtn.style.display = 'none';
+            console.warn('Speech recognition not supported in this browser');
+        }
+
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // UI Updates
+            chatArea.classList.add('active');
+            appendBubble(text, 'user');
+            userInput.value = '';
+
+            // Loading
+            const loadId = 'load_' + Date.now();
+            const loadDiv = document.createElement('div');
+            loadDiv.className = 'message bot';
+            loadDiv.id = loadId;
+            loadDiv.innerHTML = `<div class="message-bubble">...جاري التحليل</div>`;
+            chatArea.appendChild(loadDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
+                // Process file attachments if any
+                let attachments = null;
+                if (selectedFiles.length > 0) {
+                    // Show file processing status
+                    const processingDiv = document.createElement('div');
+                    processingDiv.textContent = `📎 جاري معالجة ${selectedFiles.length} ملف...`;
+                    processingDiv.style.cssText = 'text-align: center; color: var(--text-med); margin: 10px 0; font-size: 0.9rem;';
+                    chatArea.appendChild(processingDiv);
+
+                    // Convert files to base64
+                    attachments = await Promise.all(selectedFiles.map(file => fileToBase64(file)));
+
+                    // Remove processing message
+                    processingDiv.remove();
+
+                    // Clear files after sending
+                    selectedFiles = [];
+                    filePreviewContainer.innerHTML = '';
+                    filePreviewContainer.classList.remove('active');
+                }
+
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: message,
-                        guest_session_id: guestSessionId
+                        message: text,
+                        guest_session_id: guestSessionId,
+                        conversation_id: currentConversationId,
+                        attachments: attachments
                     })
                 });
 
-                if (!response.ok) {
-                    let errorMessage = response.statusText;
-                    try {
-                        const errorData = await response.json();
-                        if (errorData && errorData.error && errorData.error.message) {
-                            errorMessage = errorData.error.message;
-                        } else if (errorData && errorData.detail) {
-                            errorMessage = errorData.detail;
-                        }
-                    } catch (e) {
-                        // Could not parse JSON error response, use status text
-                    }
-                    throw new Error(errorMessage);
-                }
+                if (!response.ok) throw new Error('API Error');
 
-                // Handle SSE Stream
+                // Stream handling
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                botResponse.textContent = ''; // Clear loading message
+                let botMsg = '';
+                let msgDiv = document.getElementById(loadId).querySelector('.message-bubble');
+                msgDiv.innerHTML = ''; // clear loading text
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-
                     const chunk = decoder.decode(value);
                     const lines = chunk.split('\n');
 
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             try {
-                                const data = JSON.parse(line.substring(6));
-                                if (data.type === 'content') {
-                                    fullResponse += data.data;
-                                    botResponse.textContent = fullResponse;
-                                } else if (data.type === 'error') {
-                                    botResponse.innerHTML += `<br><span class="text-danger">Error: ${data.data.error}</span>`;
+                                const json = JSON.parse(line.substring(6));
+                                if (json.type === 'content') {
+                                    botMsg += json.data;
+                                    msgDiv.innerHTML = marked.parse(botMsg);
+                                } else if (json.type === 'done') {
+                                    if (!currentConversationId && json.data.conversation_id) {
+                                        currentConversationId = json.data.conversation_id;
+                                        loadConversationsList(); // Refresh list on new conversation
+                                    }
                                 }
-                            } catch (e) {
-                                console.error('Error parsing JSON:', e);
-                            }
+                            } catch (e) { }
                         }
                     }
+                    chatArea.scrollTop = chatArea.scrollHeight;
                 }
-            } catch (error) {
-                botResponse.innerHTML = `<span class="text-danger">Failed to get response: ${error.message}</span>`;
-            } finally {
-                submitBtn.disabled = false;
+            } catch (err) {
+                document.getElementById(loadId).innerHTML = `<div class="message-bubble text-danger">عذراً، حدث خطأ في الاتصال.</div>`;
+            }
+        }
+
+        function appendBubble(txt, type) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerHTML = `<div class="message-bubble">${txt}</div>`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // ============================================
+        // CONVERSATION HISTORY SIDEBAR FUNCTIONALITY
+        // ============================================
+        const sidebar = document.getElementById('conversationsSidebar');
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const newConversationBtn = document.getElementById('newConversationBtn');
+        const conversationsList = document.getElementById('conversationsList');
+
+        // Open sidebar and load list
+        sidebarToggleBtn.addEventListener('click', function () {
+            sidebar.classList.add('open');
+            loadConversationsList();
+        });
+
+        // Close sidebar
+        closeSidebarBtn.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function (e) {
+            if (sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !sidebarToggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
             }
         });
-    </script>
 
+        // Load conversations from the database
+        async function loadConversationsList() {
+            try {
+                const response = await fetch(`/api/conversations?guest_session_id=${guestSessionId}`);
+                if (!response.ok) return;
+
+                const conversations = await response.json();
+
+                // Keep groups (Today, etc) or just render all for now?
+                // Let's just render all in a simple list for now as per current template structure
+                // But we'll try to keep the group headers if we have enough data
+
+                if (conversations.length === 0) {
+                    conversationsList.innerHTML = '<div style="text-align: center; color: var(--text-med); padding: 20px;">لا توجد محادثات سابقة</div>';
+                    return;
+                }
+
+                conversationsList.innerHTML = '';
+
+                // Simple grouping logic
+                const today = [];
+                const earlier = [];
+                const now = new Date();
+
+                conversations.forEach(conv => {
+                    const convDate = new Date(conv.created_at);
+                    if (now.toDateString() === convDate.toDateString()) {
+                        today.push(conv);
+                    } else {
+                        earlier.push(conv);
+                    }
+                });
+
+                if (today.length > 0) {
+                    renderGroup('اليوم', today);
+                }
+                if (earlier.length > 0) {
+                    renderGroup('سابقاً', earlier);
+                }
+
+                // Add event listeners to NEWLY created items
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const id = this.getAttribute('data-conversation-id');
+                        loadConversationDetails(id);
+                    });
+                });
+
+            } catch (err) {
+                console.error("Error loading conversations:", err);
+            }
+        }
+
+        function renderGroup(title, items) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'conversation-group';
+            groupDiv.innerHTML = `<div class="conversation-group-title">${title}</div>`;
+
+            items.forEach(conv => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `conversation-item ${currentConversationId == conv.id ? 'active' : ''}`;
+                itemDiv.setAttribute('data-conversation-id', conv.id);
+
+                const dateStrings = {
+                    day: new Date(conv.created_at).toLocaleDateString('ar-EG'),
+                    time: new Date(conv.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+                };
+
+                itemDiv.innerHTML = `
+                    <button class="delete-conv-btn" onclick="deleteConversation(event, ${conv.id})" title="حذف المحادثة">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <div class="conversation-item-title">${conv.title || 'محادثة جديدة'}</div>
+                    <div class="conversation-item-preview">${conv.summary || ''}</div>
+                    <div class="conversation-item-time">${dateStrings.day} ${dateStrings.time}</div>
+                `;
+                groupDiv.appendChild(itemDiv);
+            });
+
+            conversationsList.appendChild(groupDiv);
+        }
+
+        async function loadConversationDetails(id) {
+            try {
+                const response = await fetch(`/api/conversations/${id}?guest_session_id=${guestSessionId}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+                currentConversationId = id;
+
+                // Clear and populate chat area
+                chatArea.innerHTML = '';
+                chatArea.classList.add('active');
+
+                data.messages.forEach(msg => {
+                    if (msg.role === 'user') {
+                        appendBubble(msg.content, 'user');
+                    } else {
+                        // For assistant messages, we might need to render markdown
+                        const div = document.createElement('div');
+                        div.className = 'message bot';
+                        div.innerHTML = `<div class="message-bubble">${marked.parse(msg.content)}</div>`;
+                        chatArea.appendChild(div);
+                    }
+                });
+
+                chatArea.scrollTop = chatArea.scrollHeight;
+                sidebar.classList.remove('open');
+
+                // Update active state in sidebar UI
+                document.querySelectorAll('.conversation-item').forEach(i => {
+                    i.classList.toggle('active', i.getAttribute('data-conversation-id') == id);
+                });
+
+            } catch (err) {
+                console.error("Error loading conversation details:", err);
+            }
+        }
+
+        async function deleteConversation(event, id) {
+            event.stopPropagation(); // Prevent loading the conversation when clicking delete
+
+            if (!confirm('هل أنت متأكد من حذف هذه المحادثة؟')) return;
+
+            try {
+                const response = await fetch(`/api/conversations/${id}?guest_session_id=${guestSessionId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    if (currentConversationId == id) {
+                        // Clear current chat if the deleted one was active
+                        currentConversationId = null;
+                        chatArea.innerHTML = '';
+                        chatArea.classList.remove('active');
+                    }
+                    // Refresh the list
+                    loadConversationsList();
+                } else {
+                    alert('خطأ في حذف المحادثة');
+                }
+            } catch (err) {
+                console.error("Error deleting conversation:", err);
+            }
+        }
+
+        // New conversation button
+        newConversationBtn.addEventListener('click', function () {
+            currentConversationId = null;
+            chatArea.innerHTML = '';
+            chatArea.classList.remove('active');
+
+            // UI feedback
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => this.style.transform = 'scale(1)', 150);
+            setTimeout(() => sidebar.classList.remove('open'), 300);
+
+            document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+        });
+
+        // Initialize on load
+        loadConversationsList();
+
+    </script>
 </body>
 
 </html>

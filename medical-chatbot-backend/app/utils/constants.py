@@ -27,7 +27,7 @@ class FeedbackType(str, Enum):
 
 # Plan limits configuration
 PLAN_LIMITS = {
-    PlanType.FREE: 10,
+    PlanType.FREE: 100,
     PlanType.PRO: 999999  # Essentially unlimited for MVP
 }
 
@@ -53,7 +53,9 @@ EMERGENCY_KEYWORDS = [
 
 # Approved medical domains for keyword search
 # مصادر طبية موثوقة فقط - Trusted medical sources only
+# WebTeb is prioritized as the PRIMARY source
 APPROVED_DOMAINS = [
+    "webteb.com",           # WebTeb (PRIMARY - Arabic/English Medical Content)
     "nih.gov",              # NIH (National Institutes of Health)
     "medlineplus.gov",      # MedlinePlus (NIH)
     "mayoclinic.org",       # Mayo Clinic
@@ -64,8 +66,9 @@ APPROVED_DOMAINS = [
     "pubmed.ncbi.nlm.nih.gov", # PubMed
 ]
 
-# Domain priority for ranking search results (authority ranking)
+# Domain priority for ranking search results (lower number = higher priority)
 DOMAIN_PRIORITY = {
+    "webteb.com": 0,        # HIGHEST PRIORITY - Primary source
     "who.int": 1,           # Global authority
     "cdc.gov": 1,           # National authority
     "nih.gov": 1,           # Research authority
