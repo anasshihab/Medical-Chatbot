@@ -87,55 +87,41 @@ async def health_check():
     }
 
 
-# Root endpoint
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return {
-        "message": "Medical AI Chatbot API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "test_interface": "/test"
-    }
-
-
-# Test interface endpoint
-@app.get("/test", response_class=HTMLResponse)
-async def test_interface():
-    """
-    Simple test interface for the chatbot
-    واجهة اختبار بسيطة - لا تعرض أي كود خلفي أو مفاتيح API
-    """
-    import os
-    template_path = os.path.join(
-        os.path.dirname(__file__),
-        "templates",
-        "test_interface.html"
-    )
-    
-    with open(template_path, "r", encoding="utf-8") as f:
-        html_content = f.read()
-    
-    return HTMLResponse(content=html_content)
-
-
-# Simple Chat Interface
-@app.get("/chat", response_class=HTMLResponse)
-async def simple_chat_interface():
-    """
-    Simple chat interface requested by user
-    """
+# Helper to serve chat template
+def get_chat_template():
     import os
     template_path = os.path.join(
         os.path.dirname(__file__),
         "templates",
         "chat.html"
     )
-    
     with open(template_path, "r", encoding="utf-8") as f:
-        html_content = f.read()
-    
-    return HTMLResponse(content=html_content)
+        return f.read()
+
+
+# Root endpoint - serves chat interface
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    """Root endpoint - Serves premium chat interface"""
+    return HTMLResponse(content=get_chat_template())
+
+
+# Test interface endpoint - also serves premium chat interface
+@app.get("/test", response_class=HTMLResponse)
+async def test_interface():
+    """
+    Main chat interface (replaces old test interface)
+    """
+    return HTMLResponse(content=get_chat_template())
+
+
+# Simple Chat Interface
+@app.get("/chat", response_class=HTMLResponse)
+async def simple_chat_interface():
+    """
+    Premium chat interface
+    """
+    return HTMLResponse(content=get_chat_template())
 
 
 if __name__ == "__main__":
