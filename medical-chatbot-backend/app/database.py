@@ -6,7 +6,7 @@ from app.config import settings
 
 # Create SQLAlchemy engine
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.sqlalchemy_database_url,
     pool_pre_ping=True,  # Enable connection health checks
     pool_size=10,
     max_overflow=20

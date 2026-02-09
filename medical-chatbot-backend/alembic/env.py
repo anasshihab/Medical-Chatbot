@@ -24,7 +24,7 @@ from app.models.feedback import Feedback
 config = context.config
 
 # Override sqlalchemy.url with our DATABASE_URL
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.sqlalchemy_database_url)
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:

@@ -41,6 +41,13 @@ class Settings(BaseSettings):
         """Parse CORS origins from comma-separated string"""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
+    @property
+    def sqlalchemy_database_url(self) -> str:
+        """Fix postgres:// to postgresql:// for SQLAlchemy compatibility"""
+        if self.DATABASE_URL and self.DATABASE_URL.startswith("postgres://"):
+            return self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        return self.DATABASE_URL
+
 
 # Global settings instance
 settings = Settings()
