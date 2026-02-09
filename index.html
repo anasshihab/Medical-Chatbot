@@ -1655,13 +1655,13 @@
 
 
         // --- 2. CHAT FUNCTIONALITY ---
-        // Dynamic configuration: Try to get URL from localStorage, or use a default.
-        // This allows you to update the backend URL without re-deploying to Netlify.
-        let API_BASE_URL = localStorage.getItem('med_api_url') || '';
+        // Dynamic configuration: Try to get URL from localStorage, or use production URL.
+        // Production backend URL on Render
+        let API_BASE_URL = localStorage.getItem('med_api_url') || 'https://medical-chatbot-1-m6re.onrender.com';
 
-        // Auto-detect if we're on localhost
-        if (!API_BASE_URL && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-            API_BASE_URL = 'http://localhost:8000';
+        // Auto-detect if we're on localhost (for local development)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            API_BASE_URL = localStorage.getItem('med_api_url') || 'http://localhost:8000';
         }
 
         const userInput = document.getElementById('userInput');

@@ -22,10 +22,10 @@ async def startup_event():
     """Initialize services on startup"""
     setup_logging()
 
-# CORS middleware
+# CORS middleware - Allow all origins for production testing
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=["*"],  # Allow all origins for initial testing
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
