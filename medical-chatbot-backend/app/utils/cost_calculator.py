@@ -100,7 +100,7 @@ def log_ai_cost(model: str, input_tokens: int, output_tokens: int, context: str 
     )
     
     # Print directly to terminal for high visibility
-    print(f"\n{log_msg}\n")
+    print(f"\n{log_msg}\n", flush=True)
     logger.info(log_msg)
     
     return cost
