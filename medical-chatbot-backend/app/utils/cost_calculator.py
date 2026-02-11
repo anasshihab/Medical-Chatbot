@@ -8,13 +8,15 @@ logger = logging.getLogger(__name__)
 # Source: https://openai.com/pricing
 
 PRICING = {
-    "gpt-4o": {
-        "input": 2.50 / 1_000_000,   # $2.50 per 1M input tokens
-        "output": 10.00 / 1_000_000  # $10.00 per 1M output tokens
-    },
+    # CRITICAL: "gpt-4o-mini" MUST come before "gpt-4o" due to startswith() matching logic!
+    # If "gpt-4o" is first, "gpt-4o-mini" will incorrectly match to expensive gpt-4o rates.
     "gpt-4o-mini": {
         "input": 0.15 / 1_000_000,   # $0.15 per 1M input tokens
         "output": 0.60 / 1_000_000   # $0.60 per 1M output tokens
+    },
+    "gpt-4o": {
+        "input": 2.50 / 1_000_000,   # $2.50 per 1M input tokens
+        "output": 10.00 / 1_000_000  # $10.00 per 1M output tokens
     },
     "gpt-4-turbo": {
         "input": 10.00 / 1_000_000,  # $10.00 per 1M input tokens
