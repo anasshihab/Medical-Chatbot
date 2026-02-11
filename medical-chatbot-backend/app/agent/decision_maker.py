@@ -5,7 +5,7 @@ import logging
 from app.utils.cost_calculator import log_ai_cost
 from openai import AsyncOpenAI
 from app.config import settings
-from app.agent.prompt_builder import get_tool_decision_prompt
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,25 +22,51 @@ class DecisionMaker:
         conversation_history: List[Dict[str, str]] = None
     ) -> Dict[str, any]:
         """
-        Decide what action to take based on user message using LLM
+        Decide what action to take based on user message using LLM.
+        Returns intent classification: requires_tools (medical query) or direct_answer (greeting/simple chat)
         """
         conversation_history = conversation_history or []
         
         # Convert history to string for prompt
         history_str = ""
-        for msg in conversation_history[-20:]: # Last 20 messages
+        for msg in conversation_history[-10:]: # Last 10 messages for context
             history_str += f"{msg.get('role', 'user')}: {msg.get('content', '')}\n"
         
-        # Get decision prompt
-        prompt = get_tool_decision_prompt(user_message, history_str)
+        # Enhanced prompt for gatekeeper pattern
+        prompt = f"""You are a decision maker for a medical AI chatbot. Analyze the user's message and determine if it requires medical tools/search or can be answered directly.
+
+**Conversation History:**
+{history_str if history_str else "No previous messages"}
+
+**User Message:**
+{user_message}
+
+**Classify the intent:**
+
+1. **requires_tools**: Medical questions, symptom checks, drug information, health conditions, treatment options, or any medical topic that needs verified sources
+2. **direct_answer**: Greetings (hello, hi, how are you), basic chat, thank you messages, simple questions about the bot itself, or general conversation
+
+**Examples:**
+- "Hello" → direct_answer
+- "What is diabetes?" → requires_tools  
+- "Thank you" → direct_answer
+- "I have a headache and fever" → requires_tools
+- "How does this bot work?" → direct_answer
+- "What are the side effects of aspirin?" → requires_tools
+
+Respond in strict JSON format:
+{{
+  "intent": "requires_tools" or "direct_answer",
+  "reason": "brief explanation",
+  "confidence": 0.0-1.0
+}}"""
         
         try:
-            # Call OpenAI to decide
-            # Using gpt-3.5-turbo for speed/cost, or gpt-4o works too
+            # Call OpenAI with gpt-4o-mini (cheaper and more capable than gpt-3.5-turbo)
             response = await self.client.chat.completions.create(
-                model="gpt-3.5-turbo", 
+                model="gpt-4o-mini", 
                 messages=[
-                    {"role": "system", "content": "You are a decision maker for a medical bot. Output valid JSON."},
+                    {"role": "system", "content": "You are a decision maker for a medical chatbot. Output valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0,
@@ -50,37 +76,31 @@ class DecisionMaker:
             # Log cost
             if response.usage:
                 log_ai_cost(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens,
-                    context="Decision Maker"
+                    context="Decision Maker (Gatekeeper)"
                 )
             
             content = response.choices[0].message.content
             decision = json.loads(content)
             
             # Validate decision structure
-            if "action" not in decision:
+            if "intent" not in decision:
+                logger.warning("Invalid decision structure, defaulting to requires_tools")
                 return {
-                    "action": "keyword_search", 
+                    "intent": "requires_tools", 
                     "reason": "Invalid LLM response", 
-                    "params": {"search_query": user_message}
+                    "confidence": 0.5
                 }
-                
-            # If action is read_url, ensure we have the url
-            if decision["action"] == "read_url" and "url" not in decision.get("params", {}):
-                 # Try to extract again if missing
-                 pass 
 
             return decision
             
         except Exception as e:
             logger.error(f"Error in decision maker: {str(e)}")
-            # Fallback to keyword search as it's the safest default for a medical bot
+            # Fallback to requires_tools to be safe for medical queries
             return {
-                "action": "keyword_search",
-                "reason": "Error in decision process, defaulting to search",
-                "params": {
-                    "search_query": user_message
-                }
+                "intent": "requires_tools",
+                "reason": "Error in decision process, defaulting to tool-enabled mode for safety",
+                "confidence": 0.5
             }

@@ -22,6 +22,11 @@ class MedicalChatAgent:
     def __init__(self):
         self.search_tool = SearchTool()
         self.symptom_checker = SymptomCheckerTool()
+        
+        # Initialize Decision Maker for Token Optimization (Gatekeeper Pattern)
+        from app.agent.decision_maker import DecisionMaker
+        self.decision_maker = DecisionMaker()
+        
         self.tools_schema = [
             {
                 "type": "function",
@@ -122,9 +127,62 @@ class MedicalChatAgent:
         # Add current user message
         messages.append({"role": "user", "content": enriched_message})
 
-        # 3. Agent Loop (Handled via stable OpenAI SDK)
+        # 3. TOKEN OPTIMIZATION: Use DecisionMaker as Gatekeeper
+        # Instead of always sending tools schema, first check if tools are actually needed
+        decision = await self.decision_maker.decide_action(
+            user_message=enriched_message,
+            conversation_history=conversation_history
+        )
+        
+        logger.info(f"DecisionMaker intent: {decision.get('intent')} - {decision.get('reason')}")
+        yield {
+            "type": "metadata", 
+            "data": {
+                "decision": decision.get('intent'),
+                "decision_reason": decision.get('reason'),
+                "decision_confidence": decision.get('confidence', 0.0)
+            }
+        }
+
+        # 4. Agent Loop - Conditional Tool Schema Passing
         try:
-            # Step A: Initial Call to see if tools are needed
+            # PATH 1: DIRECT ANSWER (No Tools Needed) - Saves input tokens!
+            if decision.get('intent') == 'direct_answer':
+                logger.info("Direct answer path - NO tools schema sent")
+                
+                # Call OpenAI WITHOUT tools parameter (major cost savings)
+                stream = await client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=messages,
+                    stream=True,
+                    stream_options={"include_usage": True}
+                    # NOTE: No 'tools' parameter = saves input tokens
+                )
+                
+                full_content = ""
+                async for chunk in stream:
+                    if not chunk.choices:
+                        # Handle usage chunk at the end
+                        if hasattr(chunk, 'usage') and chunk.usage:
+                            log_ai_cost(
+                                model="gpt-4o-mini",
+                                input_tokens=chunk.usage.prompt_tokens,
+                                output_tokens=chunk.usage.completion_tokens,
+                                context="Agent Direct (No Tools - Optimized)"
+                            )
+                        continue
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        full_content += content
+                        yield {"type": "content", "data": content}
+                
+                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
+                return
+            
+            # PATH 2: REQUIRES TOOLS (Medical Query) - Use full schema
+            logger.info("Tool-enabled path - tools schema included")
+            
+            # Step A: Initial Call WITH tools to see if they're needed
             response = await client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=messages,
@@ -138,8 +196,9 @@ class MedicalChatAgent:
                     model="gpt-4o-mini",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens,
-                    context="Agent Initial"
+                    context="Agent Initial (With Tools)"
                 )
+            
             
             message = response.choices[0].message
             tool_calls = message.tool_calls
