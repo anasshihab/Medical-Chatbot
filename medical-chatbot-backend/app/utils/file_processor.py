@@ -33,7 +33,7 @@ class FileProcessor:
             
             # Call GPT-4 Vision
             response = await client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",
                 messages=[
                     {
                         "role": "user",

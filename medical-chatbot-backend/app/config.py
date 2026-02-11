@@ -18,7 +18,11 @@ class Settings(BaseSettings):
     # تم تحميل مفتاح OpenAI من ملف .env — لا تضعه داخل الكود
     # OpenAI API key is loaded from .env file — do NOT put it in code
     OPENAI_API_KEY: str
-    OPENAI_MODEL: str = "gpt-4-turbo-preview"
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    
+    # Conversation memory settings
+    CONVERSATION_WINDOW_SIZE: int = 30  # Keep last 30 messages in context
+    SUMMARIZATION_MODEL: str = "gpt-4o-mini"  # Model for summarization
     
     # WebTeb Symptom Checker API
     # مطلوب: احصل على بيانات API من WebTeb

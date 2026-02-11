@@ -9,6 +9,7 @@ from app.tools.search import SearchTool
 from app.tools.symptom_checker import SymptomCheckerTool
 from app.safety.emergency_detector import is_emergency, detect_special_cases
 from app.safety.responses import get_emergency_response
+from app.services.conversation_memory import get_conversation_memory
 
 # Global client for efficiency
 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
@@ -109,17 +110,23 @@ class MedicalChatAgent:
             yield {"type": "done", "data": {"tokens_used": 0}}
             return
 
-        # 2. Build Messages
-        messages = [{"role": "system", "content": get_system_prompt()}]
-        for msg in conversation_history[-50:]:  # Context window (approx 25 turns)
-            messages.append({"role": msg["role"], "content": msg["content"]})
+        # 2. Build Messages with Smart Memory Management
+        memory = get_conversation_memory(window_size=30)
+        
+        # Process conversation history with sliding window + summarization
+        messages = await memory.process_conversation_history(
+            conversation_history=conversation_history,
+            system_prompt=get_system_prompt()
+        )
+        
+        # Add current user message
         messages.append({"role": "user", "content": enriched_message})
 
         # 3. Agent Loop (Handled via stable OpenAI SDK)
         try:
             # Step A: Initial Call to see if tools are needed
             response = await client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",
                 messages=messages,
                 tools=self.tools_schema,
                 tool_choice="auto"
@@ -128,7 +135,7 @@ class MedicalChatAgent:
             # Log initial call cost
             if response.usage:
                 log_ai_cost(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens,
                     context="Agent Initial"
@@ -174,7 +181,7 @@ class MedicalChatAgent:
 
                 # Step B: Final Generation after tool results
                 stream = await client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     messages=messages,
                     stream=True,
                     stream_options={"include_usage": True}
@@ -186,7 +193,7 @@ class MedicalChatAgent:
                         # Handle usage chunk at the end
                         if hasattr(chunk, 'usage') and chunk.usage:
                             log_ai_cost(
-                                model="gpt-4o",
+                                model="gpt-4o-mini",
                                 input_tokens=chunk.usage.prompt_tokens,
                                 output_tokens=chunk.usage.completion_tokens,
                                 context="Agent Final (Streamed)"
@@ -203,7 +210,7 @@ class MedicalChatAgent:
                 # Direct response (no tools needed)
                 # Re-run with stream for direct speed
                 stream = await client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     messages=messages,
                     stream=True,
                     stream_options={"include_usage": True}
@@ -214,7 +221,7 @@ class MedicalChatAgent:
                         # Handle usage chunk at the end
                         if hasattr(chunk, 'usage') and chunk.usage:
                             log_ai_cost(
-                                model="gpt-4o",
+                                model="gpt-4o-mini",
                                 input_tokens=chunk.usage.prompt_tokens,
                                 output_tokens=chunk.usage.completion_tokens,
                                 context="Agent Direct (Streamed)"
