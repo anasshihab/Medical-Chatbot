@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' https://medical-chatbot-1-m6re.onrender.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; connect-src 'self' https://medical-chatbot-1-m6re.onrender.com;">
+        content="default-src 'self' https://medical-chatbot-1-m6re.onrender.com https://*.onrender.com http://localhost:8000 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; connect-src 'self' https://medical-chatbot-1-m6re.onrender.com https://*.onrender.com http://localhost:8000;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebTeb - مساعدك الطبي الذكي | إجابات طبية موثوقة</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -1657,14 +1657,28 @@
 
 
         // --- 2. CHAT FUNCTIONALITY ---
+        // ⚙️ CONFIGURATION: Backend API URL
+        // ============================================
+        // TO CHANGE THE BACKEND URL:
+        // 1. Replace the URL below with your deployed backend URL
+        // 2. Or set it dynamically via localStorage: localStorage.setItem('med_api_url', 'YOUR_URL_HERE')
+        // ============================================
+
+        // Default production backend URL - CHANGE THIS TO YOUR ACTUAL BACKEND URL
+        const DEFAULT_BACKEND_URL = 'https://medical-chatbot-1-m6re.onrender.com';
+
         // Dynamic configuration: Try to get URL from localStorage, or use production URL.
-        // Production backend URL on Render
-        let API_BASE_URL = localStorage.getItem('med_api_url') || 'https://medical-chatbot-1-m6re.onrender.com';
+        let API_BASE_URL = localStorage.getItem('med_api_url') || DEFAULT_BACKEND_URL;
 
         // Auto-detect if we're on localhost (for local development)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             API_BASE_URL = localStorage.getItem('med_api_url') || 'http://localhost:8000';
         }
+
+        // Log the backend URL being used (for debugging)
+        console.log('🔗 Backend API URL:', API_BASE_URL);
+        console.log('💡 To change backend URL, run: localStorage.setItem("med_api_url", "YOUR_URL_HERE")');
+
 
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -2019,8 +2033,25 @@
                     chatArea.scrollTop = chatArea.scrollHeight;
                 }
             } catch (err) {
-                const errorMsg = API_BASE_URL ? `عذراً، تعذر الاتصال بالخادم في ${API_BASE_URL}` : 'عذراً، لم يتم ضبط رابط الخادم. يرجى الضبط من الإعدادات.';
-                document.getElementById(loadId).innerHTML = `<div class="message-bubble text-danger">${errorMsg}</div>`;
+                console.error('❌ Backend Error:', err);
+                const errorMsg = `
+                    <div style="text-align: center;">
+                        <p style="color: #ff4444; font-weight: bold; margin-bottom: 10px;">
+                            ⚠️ حدث خطأ في الاتصال بالخادم
+                        </p>
+                        <p style="font-size: 0.9rem; color: var(--text-med); margin-bottom: 10px;">
+                            An error occurred. Make sure the server is running at:
+                        </p>
+                        <p style="font-size: 0.85rem; font-family: monospace; color: var(--webteb-dark-cyan); background: #f0f0f0; padding: 8px; border-radius: 8px; margin-bottom: 10px;">
+                            ${API_BASE_URL}
+                        </p>
+                        <p style="font-size: 0.8rem; color: #666;">
+                            يرجى التأكد من أن الخادم يعمل ويمكن الوصول إليه.<br>
+                            Please ensure the backend server is running and accessible.
+                        </p>
+                    </div>
+                `;
+                document.getElementById(loadId).innerHTML = `<div class="message-bubble">${errorMsg}</div>`;
             }
         }
 

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .result pre {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 Backend Connection Tester</h1>
+        <p class="subtitle">Test if your Medical Chatbot backend is accessible</p>
+
+        <div class="input-group">
+            <label for="backendUrl">Backend URL:</label>
+            <input type="text" id="backendUrl" placeholder="https://your-backend-url.onrender.com"
+                value="https://medical-chatbot-1-m6re.onrender.com">
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Enter your backend URL (without trailing slash)
+            </small>
+        </div>
+
+        <div class="test-section">
+            <h3>Quick Tests</h3>
+            <button onclick="testHealth()">1️⃣ Test Health Endpoint</button>
+            <button onclick="testDocs()">2️⃣ Test API Docs</button>
+            <button onclick="testChat()">3️⃣ Test Chat Endpoint</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Testing connection...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function getBackendUrl() {
+            return document.getElementById('backendUrl').value.trim();
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResult(type, title, message, details = null) {
+            hideLoading();
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+
+            let html = `<h3>${title}</h3><p>${message}</p>`;
+            if (details) {
+                html += `<pre>${JSON.stringify(details, null, 2)}</pre>`;
+            }
+            resultDiv.innerHTML = html;
+        }
+
+        async function testHealth() {
+            const url = getBackendUrl();
+            if (!url) {
+                showResult('error', '❌ Error', 'Please enter a backend URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${url}/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(
+                        'success',
+                        '✅ Health Check Passed!',
+                        'Backend is running and accessible.',
+                        data
+                    );
+                } else {
+                    showResult(
+                        'error',
+                        '❌ Health Check Failed',
+                        `Server responded with status ${response.status}`,
+                        { status: response.status, statusText: response.statusText }
+                    );
+                }
+            } catch (error) {
+                showResult(
+                    'error',
+                    '❌ Connection Failed',
+                    'Could not connect to the backend. Make sure:\n1. The URL is correct\n2. The backend is running\n3. CORS is properly configured',
+                    { error: error.message }
+                );
+            }
+        }
+
+        async function testDocs() {
+            const url = getBackendUrl();
+            if (!url) {
+                showResult('error', '❌ Error', 'Please enter a backend URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${url}/docs`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    showResult(
+                        'success',
+                        '✅ API Docs Accessible!',
+                        `Open <a href="${url}/docs" target="_blank">${url}/docs</a> in a new tab to view the Swagger documentation.`
+                    );
+                } else {
+                    showResult(
+                        'error',
+                        '❌ API Docs Check Failed',
+                        `Server responded with status ${response.status}`
+                    );
+                }
+            } catch (error) {
+                showResult(
+                    'error',
+                    '❌ Connection Failed',
+                    'Could not connect to the backend.',
+                    { error: error.message }
+                );
+            }
+        }
+
+        async function testChat() {
+            const url = getBackendUrl();
+            if (!url) {
+                showResult('error', '❌ Error', 'Please enter a backend URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${url}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Test message',
+                        guest_session_id: 'test_' + Date.now()
+                    })
+                });
+
+                if (response.ok) {
+                    // For streaming response, just check if we got a response
+                    showResult(
+                        'success',
+                        '✅ Chat Endpoint Working!',
+                        'The chat endpoint is accessible and responding. The backend is properly configured!'
+                    );
+                } else if (response.status === 403) {
+                    showResult(
+                        'info',
+                        '⚠️ Plan Limit Reached',
+                        'The chat endpoint is working, but you may have reached the guest usage limit. Try with a different guest_session_id or create an account.',
+                        { status: response.status }
+                    );
+                } else {
+                    const errorData = await response.json().catch(() => null);
+                    showResult(
+                        'error',
+                        '❌ Chat Endpoint Error',
+                        `Server responded with status ${response.status}`,
+                        errorData
+                    );
+                }
+            } catch (error) {
+                showResult(
+                    'error',
+                    '❌ Connection Failed',
+                    'Could not connect to the chat endpoint.',
+                    { error: error.message }
+                );
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+
+</html>
