@@ -1048,6 +1048,20 @@
                 font-size: 1rem;
             }
 
+            /* Tablet: Slightly smaller icons, maintain touch targets */
+            .search-btn,
+            .attach-btn,
+            .voice-record-btn {
+                font-size: 1.15rem;
+                /* ~18-19px icons */
+            }
+
+            .search-btn i,
+            .attach-btn i,
+            .voice-record-btn i {
+                font-size: 1.15rem;
+            }
+
             .topic-chip {
                 padding: 0.7rem 1.5rem;
                 font-size: 0.9rem;
@@ -1092,37 +1106,51 @@
                 margin-bottom: 2rem;
             }
 
-            /* Search container - stack buttons vertically if needed */
+            /* Search container - more compact for mobile */
             .search-container {
                 margin-bottom: 1.5rem;
             }
 
             .search-input {
-                padding: 1.125rem 4.5rem 1.125rem 4rem;
+                padding: 0.875rem 3.75rem 0.875rem 3.25rem;
                 font-size: 0.95rem;
-                border-radius: 1rem;
+                border-radius: 0.875rem;
             }
 
-            /* Buttons - ensure 44px minimum touch target */
+            /* Buttons - 44px touch targets with smaller visual icons */
             .search-btn,
             .attach-btn,
             .voice-record-btn {
-                width: 48px;
-                height: 48px;
-                border-radius: 0.875rem;
-                font-size: 1.1rem;
+                width: 44px;
+                height: 44px;
+                border-radius: 0.75rem;
+                /* Icon visual size: 18px */
+                font-size: 1.125rem;
+                /* Add padding to maintain touch target while icon appears smaller */
+                padding: 0.625rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Icon-specific sizing for better mobile appearance */
+            .search-btn i,
+            .attach-btn i,
+            .voice-record-btn i {
+                font-size: 1.125rem;
+                /* 18px visual size */
             }
 
             .search-btn {
-                left: 8px;
+                left: 6px;
             }
 
             .attach-btn {
-                right: 8px;
+                right: 6px;
             }
 
             .voice-record-btn {
-                right: 64px;
+                right: 56px;
             }
 
             /* Topic chips */
@@ -1264,23 +1292,43 @@
                 margin-bottom: 1.5rem;
             }
 
-            /* Search - optimize for small screens */
+            /* Search - compact layout for small mobile */
             .search-input {
-                padding: 1rem 3.75rem 1rem 3.5rem;
-                font-size: 0.9rem;
+                padding: 0.75rem 3.25rem 0.75rem 2.875rem;
+                font-size: 0.875rem;
+                border-radius: 0.75rem;
             }
 
-            /* Buttons - maintain touch targets */
+            /* Buttons - 40px minimum with smaller icons */
             .search-btn,
             .attach-btn,
             .voice-record-btn {
-                width: 44px;
-                height: 44px;
+                width: 40px;
+                height: 40px;
+                border-radius: 0.625rem;
+                /* Smaller icon visual: 16-18px */
                 font-size: 1rem;
+                padding: 0.5rem;
+            }
+
+            /* Ensure icons scale appropriately */
+            .search-btn i,
+            .attach-btn i,
+            .voice-record-btn i {
+                font-size: 1rem;
+                /* 16px */
+            }
+
+            .search-btn {
+                left: 5px;
+            }
+
+            .attach-btn {
+                right: 5px;
             }
 
             .voice-record-btn {
-                right: 56px;
+                right: 50px;
             }
 
             /* Topic chips - smaller but still touchable */
@@ -1338,8 +1386,29 @@
             }
 
             .search-input {
-                padding: 0.875rem 3.5rem 0.875rem 3.25rem;
-                font-size: 0.875rem;
+                padding: 0.65rem 3rem 0.65rem 2.75rem;
+                font-size: 0.8125rem;
+                /* 13px */
+            }
+
+            /* Extra small buttons - 38px minimum */
+            .search-btn,
+            .attach-btn,
+            .voice-record-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.9375rem;
+                /* 15px icon */
+            }
+
+            .search-btn i,
+            .attach-btn i,
+            .voice-record-btn i {
+                font-size: 0.9375rem;
+            }
+
+            .voice-record-btn {
+                right: 46px;
             }
 
             .topic-chip {
