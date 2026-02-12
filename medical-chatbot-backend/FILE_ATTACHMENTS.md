@@ -8,6 +8,8 @@ The medical chatbot now supports file attachments, allowing users to upload:
 
 ## Supported File Types
 
+
+
 ### Images
 - **Formats**: JPG, PNG, GIF, WebP, etc.
 - **Processing**: Analyzed using GPT-4 Vision
