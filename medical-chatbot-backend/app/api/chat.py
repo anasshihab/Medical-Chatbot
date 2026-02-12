@@ -126,6 +126,12 @@ async def chat(
         assistant_message_content = ""
         metadata = {}
         
+        # Initialize request-level cost tracking
+        request_total_cost = 0.0
+        request_total_input_tokens = 0
+        request_total_output_tokens = 0
+        request_cost_breakdown = []
+        
         try:
             async for chunk in agent.process_message(request.message, conversation_history, attachments_data):
                 # Send chunk as Server-Sent Event
@@ -139,6 +145,12 @@ async def chat(
                 
                 elif chunk["type"] == "done":
                     metadata.update(chunk["data"])
+                    
+                    # Extract cost data from agent metadata
+                    request_total_cost = chunk["data"].get("total_cost", 0.0)
+                    request_total_input_tokens = chunk["data"].get("total_input_tokens", 0)
+                    request_total_output_tokens = chunk["data"].get("total_output_tokens", 0)
+                    request_cost_breakdown = chunk["data"].get("cost_breakdown", [])
                     
                     # Save assistant message
                     assistant_message = Message(
@@ -159,6 +171,16 @@ async def chat(
                     
                     db.commit()
                     db.refresh(assistant_message)
+                    
+                    # Log grand total cost for the entire request
+                    if request_total_cost > 0:
+                        from app.utils.cost_calculator import log_grand_total_cost
+                        log_grand_total_cost(
+                            total_cost=request_total_cost,
+                            total_input_tokens=request_total_input_tokens,
+                            total_output_tokens=request_total_output_tokens,
+                            step_breakdown=request_cost_breakdown
+                        )
                     
                     # Send final metadata with IDs
                     final_chunk = {

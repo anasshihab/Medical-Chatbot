@@ -133,3 +133,58 @@ def get_model_pricing_info(model: str) -> dict:
         "input_per_token": DEFAULT_PRICING["input"],
         "output_per_token": DEFAULT_PRICING["output"]
     }
+
+def log_grand_total_cost(total_cost: float, total_input_tokens: int, total_output_tokens: int, step_breakdown: list = None):
+    """
+    Log the grand total cost for an entire request with detailed breakdown.
+    
+    Args:
+        total_cost: Total cost in USD for the entire request
+        total_input_tokens: Total input tokens across all steps
+        total_output_tokens: Total output tokens across all steps
+        step_breakdown: Optional list of dicts with per-step breakdown [{"step": "name", "cost": 0.00, "tokens": 100}, ...]
+    """
+    total_tokens = total_input_tokens + total_output_tokens
+    
+    # Format cost display based on magnitude
+    if total_cost < 0.000001:  # Less than $0.000001 (extremely small)
+        cost_str = f"${total_cost:.9f}"
+    elif total_cost < 0.001:   # Less than $0.001
+        cost_str = f"${total_cost:.6f}"
+    else:                # $0.001 or more
+        cost_str = f"${total_cost:.4f}"
+    
+    # Build the main log message
+    log_msg = (
+        f"💰 GRAND TOTAL COST [Request Complete]: {cost_str} | "
+        f"Total Tokens: {total_tokens:,} (Input: {total_input_tokens:,}, Output: {total_output_tokens:,})"
+    )
+    
+    # Print main summary
+    print(f"\n{'='*80}\n{log_msg}", flush=True)
+    
+    # Print step breakdown if available
+    if step_breakdown and len(step_breakdown) > 0:
+        print(f"{'─'*80}", flush=True)
+        print("📊 Cost Breakdown by Step:", flush=True)
+        for step_info in step_breakdown:
+            step_name = step_info.get("step", "Unknown")
+            step_cost = step_info.get("cost", 0.0)
+            step_tokens = step_info.get("tokens", 0)
+            
+            # Format step cost
+            if step_cost < 0.000001:
+                step_cost_str = f"${step_cost:.9f}"
+            elif step_cost < 0.001:
+                step_cost_str = f"${step_cost:.6f}"
+            else:
+                step_cost_str = f"${step_cost:.4f}"
+            
+            print(f"   • {step_name}: {step_cost_str} ({step_tokens:,} tokens)", flush=True)
+        print(f"{'='*80}\n", flush=True)
+    else:
+        print(f"{'='*80}\n", flush=True)
+    
+    logger.info(log_msg)
+    
+    return total_cost

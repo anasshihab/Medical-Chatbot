@@ -74,13 +74,19 @@ Respond in strict JSON format:
             )
             
             # Log cost
+            decision_cost = 0.0
+            decision_input_tokens = 0
+            decision_output_tokens = 0
+            
             if response.usage:
-                log_ai_cost(
+                decision_cost = log_ai_cost(
                     model="gpt-4o-mini",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens,
                     context="Decision Maker (Gatekeeper)"
                 )
+                decision_input_tokens = response.usage.prompt_tokens
+                decision_output_tokens = response.usage.completion_tokens
             
             content = response.choices[0].message.content
             decision = json.loads(content)
@@ -91,9 +97,17 @@ Respond in strict JSON format:
                 return {
                     "intent": "requires_tools", 
                     "reason": "Invalid LLM response", 
-                    "confidence": 0.5
+                    "confidence": 0.5,
+                    "cost": decision_cost,
+                    "input_tokens": decision_input_tokens,
+                    "output_tokens": decision_output_tokens
                 }
 
+            # Add cost tracking to decision
+            decision["cost"] = decision_cost
+            decision["input_tokens"] = decision_input_tokens
+            decision["output_tokens"] = decision_output_tokens
+            
             return decision
             
         except Exception as e:
@@ -102,5 +116,8 @@ Respond in strict JSON format:
             return {
                 "intent": "requires_tools",
                 "reason": "Error in decision process, defaulting to tool-enabled mode for safety",
-                "confidence": 0.5
+                "confidence": 0.5,
+                "cost": 0.0,
+                "input_tokens": 0,
+                "output_tokens": 0
             }

@@ -73,6 +73,12 @@ class MedicalChatAgent:
     ) -> AsyncGenerator[Dict, None]:
         conversation_history = conversation_history or []
         
+        # Initialize cost tracking for this request
+        request_costs = []  # Will store {"step": "name", "cost": 0.00, "tokens": 100, "input_tokens": X, "output_tokens": Y}
+        total_request_cost = 0.0
+        total_input_tokens = 0
+        total_output_tokens = 0
+        
         # Process file attachments if any
         enriched_message = user_message
         if attachments:
@@ -134,6 +140,23 @@ class MedicalChatAgent:
             conversation_history=conversation_history
         )
         
+        # Track Decision Maker cost
+        decision_cost = decision.get("cost", 0.0)
+        decision_input_tokens = decision.get("input_tokens", 0)
+        decision_output_tokens = decision.get("output_tokens", 0)
+        
+        if decision_cost > 0:
+            request_costs.append({
+                "step": "Decision Maker (Gatekeeper)",
+                "cost": decision_cost,
+                "tokens": decision_input_tokens + decision_output_tokens,
+                "input_tokens": decision_input_tokens,
+                "output_tokens": decision_output_tokens
+            })
+            total_request_cost += decision_cost
+            total_input_tokens += decision_input_tokens
+            total_output_tokens += decision_output_tokens
+        
         logger.info(f"DecisionMaker intent: {decision.get('intent')} - {decision.get('reason')}")
         yield {
             "type": "metadata", 
@@ -164,19 +187,40 @@ class MedicalChatAgent:
                     if not chunk.choices:
                         # Handle usage chunk at the end
                         if hasattr(chunk, 'usage') and chunk.usage:
-                            log_ai_cost(
+                            step_cost = log_ai_cost(
                                 model="gpt-4o-mini",
                                 input_tokens=chunk.usage.prompt_tokens,
                                 output_tokens=chunk.usage.completion_tokens,
                                 context="Agent Direct (No Tools - Optimized)"
                             )
+                            # Track cost for this step
+                            request_costs.append({
+                                "step": "Agent Direct (No Tools - Optimized)",
+                                "cost": step_cost,
+                                "tokens": chunk.usage.prompt_tokens + chunk.usage.completion_tokens,
+                                "input_tokens": chunk.usage.prompt_tokens,
+                                "output_tokens": chunk.usage.completion_tokens
+                            })
+                            total_request_cost += step_cost
+                            total_input_tokens += chunk.usage.prompt_tokens
+                            total_output_tokens += chunk.usage.completion_tokens
                         continue
                     content = chunk.choices[0].delta.content
                     if content:
                         full_content += content
                         yield {"type": "content", "data": content}
                 
-                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
+                # Send final metadata with cost tracking
+                yield {
+                    "type": "done", 
+                    "data": {
+                        "tokens_used": len(full_content.split()),
+                        "total_cost": total_request_cost,
+                        "total_input_tokens": total_input_tokens,
+                        "total_output_tokens": total_output_tokens,
+                        "cost_breakdown": request_costs
+                    }
+                }
                 return
             
             # PATH 2: REQUIRES TOOLS (Medical Query) - Use full schema
@@ -192,12 +236,23 @@ class MedicalChatAgent:
             
             # Log initial call cost
             if response.usage:
-                log_ai_cost(
+                step_cost = log_ai_cost(
                     model="gpt-4o-mini",
                     input_tokens=response.usage.prompt_tokens,
                     output_tokens=response.usage.completion_tokens,
                     context="Agent Initial (With Tools)"
                 )
+                # Track cost
+                request_costs.append({
+                    "step": "Agent Initial (With Tools)",
+                    "cost": step_cost,
+                    "tokens": response.usage.prompt_tokens + response.usage.completion_tokens,
+                    "input_tokens": response.usage.prompt_tokens,
+                    "output_tokens": response.usage.completion_tokens
+                })
+                total_request_cost += step_cost
+                total_input_tokens += response.usage.prompt_tokens
+                total_output_tokens += response.usage.completion_tokens
             
             
             message = response.choices[0].message
@@ -251,19 +306,40 @@ class MedicalChatAgent:
                     if not chunk.choices:
                         # Handle usage chunk at the end
                         if hasattr(chunk, 'usage') and chunk.usage:
-                            log_ai_cost(
+                            step_cost = log_ai_cost(
                                 model="gpt-4o-mini",
                                 input_tokens=chunk.usage.prompt_tokens,
                                 output_tokens=chunk.usage.completion_tokens,
                                 context="Agent Final (Streamed)"
                             )
+                            # Track cost
+                            request_costs.append({
+                                "step": "Agent Final (Streamed)",
+                                "cost": step_cost,
+                                "tokens": chunk.usage.prompt_tokens + chunk.usage.completion_tokens,
+                                "input_tokens": chunk.usage.prompt_tokens,
+                                "output_tokens": chunk.usage.completion_tokens
+                            })
+                            total_request_cost += step_cost
+                            total_input_tokens += chunk.usage.prompt_tokens
+                            total_output_tokens += chunk.usage.completion_tokens
                         continue
                     content = chunk.choices[0].delta.content
                     if content:
                         full_content += content
                         yield {"type": "content", "data": content}
                 
-                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
+                # Send final metadata with complete cost tracking
+                yield {
+                    "type": "done", 
+                    "data": {
+                        "tokens_used": len(full_content.split()),
+                        "total_cost": total_request_cost,
+                        "total_input_tokens": total_input_tokens,
+                        "total_output_tokens": total_output_tokens,
+                        "cost_breakdown": request_costs
+                    }
+                }
             
             else:
                 # Direct response (no tools needed)
@@ -279,18 +355,40 @@ class MedicalChatAgent:
                     if not chunk.choices:
                         # Handle usage chunk at the end
                         if hasattr(chunk, 'usage') and chunk.usage:
-                            log_ai_cost(
+                            step_cost = log_ai_cost(
                                 model="gpt-4o-mini",
                                 input_tokens=chunk.usage.prompt_tokens,
                                 output_tokens=chunk.usage.completion_tokens,
                                 context="Agent Direct (Streamed)"
                             )
+                            # Track cost
+                            request_costs.append({
+                                "step": "Agent Direct (Streamed)",
+                                "cost": step_cost,
+                                "tokens": chunk.usage.prompt_tokens + chunk.usage.completion_tokens,
+                                "input_tokens": chunk.usage.prompt_tokens,
+                                "output_tokens": chunk.usage.completion_tokens
+                            })
+                            total_request_cost += step_cost
+                            total_input_tokens += chunk.usage.prompt_tokens
+                            total_output_tokens += chunk.usage.completion_tokens
                         continue
                     content = chunk.choices[0].delta.content
                     if content:
                         full_content += content
                         yield {"type": "content", "data": content}
-                yield {"type": "done", "data": {"tokens_used": len(full_content.split())}}
+                
+                # Send final metadata with complete cost tracking
+                yield {
+                    "type": "done", 
+                    "data": {
+                        "tokens_used": len(full_content.split()),
+                        "total_cost": total_request_cost,
+                        "total_input_tokens": total_input_tokens,
+                        "total_output_tokens": total_output_tokens,
+                        "cost_breakdown": request_costs
+                    }
+                }
 
         except Exception as e:
             logger.error(f"Agent error: {str(e)}")
