@@ -99,3 +99,5 @@ The application will be available at (http://localhost:8000).
 
 ---
 *Developed by Antigravity AI Assistant | 2026*
+
+
