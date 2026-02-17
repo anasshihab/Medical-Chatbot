@@ -186,13 +186,14 @@
         .topics-row {
             display: flex;
             gap: 0px;
-            /* Remove gap for seamless infinite scroll */
             width: max-content;
-            animation: scrollRight 40s linear infinite;
+            animation: floatHorizontal 6s ease-in-out infinite alternate;
         }
 
         .topics-row.reverse {
-            animation-name: scrollLeft;
+            animation-delay: -3s;
+            /* Offset for variety */
+            animation-direction: alternate-reverse;
         }
 
         /* Pause animation on hover */
@@ -202,43 +203,29 @@
 
         /* Different speeds for variety */
         .topics-row-slow {
-            animation-duration: 60s;
+            animation-duration: 20s;
             /* Slowest */
         }
 
         .topics-row-medium {
-            animation-duration: 40s;
+            animation-duration: 15s;
             /* Medium */
         }
 
         .topics-row-fast {
-            animation-duration: 25s;
+            animation-duration: 10s;
             /* Fastest */
         }
 
 
-        /* Scroll RIGHT animation (for 3 sets, moves left) */
-        @keyframes scrollRight {
+        /* Gentle Float Animation */
+        @keyframes floatHorizontal {
             0% {
                 transform: translateX(0);
             }
 
             100% {
-                transform: translateX(-33.33%);
-                /* Move by 1/3 for 3-set loop */
-            }
-        }
-
-        /* Scroll LEFT animation (reverse direction) */
-        @keyframes scrollLeft {
-            0% {
-                transform: translateX(-33.33%);
-                /* Start offset */
-            }
-
-            100% {
-                transform: translateX(0);
-                /* Move back */
+                transform: translateX(-70px);
             }
         }
 
