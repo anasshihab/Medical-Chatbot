@@ -26,8 +26,8 @@ def create_access_token(user_id: int) -> str:
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> int:
-    """Decode JWT token and return user_id"""
+def decode_access_token(token: str) -> Optional[int]:
+    """Decode JWT token and return user_id, or None for guest tokens."""
     try:
         payload = jwt.decode(
             token,
@@ -35,12 +35,16 @@ def decode_access_token(token: str) -> int:
             algorithms=[settings.ALGORITHM]
         )
         user_id: str = payload.get("sub")
-        
+
         if user_id is None:
             raise UnauthorizedException("Invalid token")
-        
+
+        # Guest tokens have sub = "guest:<uuid>" — not a real user
+        if str(user_id).startswith("guest:"):
+            return None
+
         return int(user_id)
-        
+
     except JWTError as e:
         raise UnauthorizedException(f"Invalid token: {str(e)}")
 

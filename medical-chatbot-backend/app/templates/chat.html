@@ -732,6 +732,219 @@
 
 
         /* ==========================================
+         * AUTH MODAL — 3-CLICK SYSTEM
+         * ========================================== */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 30, 50, 0.55);
+            backdrop-filter: blur(8px);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auth-overlay.hidden {
+            display: none;
+        }
+
+        .auth-modal {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(224, 248, 255, 0.96));
+            backdrop-filter: blur(30px);
+            border-radius: 28px;
+            padding: 2.5rem 2.25rem 2rem;
+            width: min(440px, 94vw);
+            box-shadow: 0 30px 70px rgba(24, 193, 245, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            position: relative;
+        }
+
+        .auth-modal-logo {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+
+        .auth-modal-logo .logo-web {
+            color: #18c1f5;
+        }
+
+        .auth-modal-logo .logo-teb {
+            color: #2d9cae;
+        }
+
+        .auth-modal-subtitle {
+            text-align: center;
+            color: var(--text-med);
+            font-size: 0.92rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(24, 193, 245, 0.08);
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-med);
+            font-family: 'Almarai', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: var(--webteb-dark-cyan);
+            box-shadow: 0 2px 10px rgba(24, 193, 245, 0.18);
+        }
+
+        .auth-panel {
+            display: none;
+        }
+
+        .auth-panel.active {
+            display: block;
+        }
+
+        .auth-field {
+            margin-bottom: 1rem;
+        }
+
+        .auth-field label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-med);
+            margin-bottom: 0.35rem;
+        }
+
+        .auth-field input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid rgba(24, 193, 245, 0.25);
+            border-radius: 12px;
+            font-family: 'Almarai', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .auth-field input:focus {
+            border-color: var(--webteb-cyan);
+            box-shadow: 0 0 0 3px rgba(24, 193, 245, 0.15);
+            background: #fff;
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--webteb-cyan), var(--webteb-dark-cyan));
+            color: white;
+            font-family: 'Almarai', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(24, 193, 245, 0.35);
+            margin-top: 0.5rem;
+        }
+
+        .auth-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(24, 193, 245, 0.45);
+        }
+
+        .auth-submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-guest-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px dashed rgba(24, 193, 245, 0.4);
+            border-radius: 14px;
+            background: transparent;
+            color: var(--webteb-dark-cyan);
+            font-family: 'Almarai', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .auth-guest-btn:hover {
+            background: rgba(24, 193, 245, 0.07);
+            border-color: var(--webteb-cyan);
+        }
+
+        .auth-error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 10px;
+            color: #c0392b;
+            font-size: 0.85rem;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .auth-error.visible {
+            display: block;
+        }
+
+        .user-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(24, 193, 245, 0.1);
+            border: 1.5px solid rgba(24, 193, 245, 0.25);
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--webteb-dark-cyan);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-status-pill:hover {
+            background: rgba(24, 193, 245, 0.18);
+        }
+
+        .user-status-pill .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+        }
+
+        .user-status-pill .pill-dot.guest {
+            background: #f39c12;
+        }
+
+        /* ==========================================
          * CONVERSATION HISTORY SIDEBAR
          * ========================================== */
         .sidebar {
@@ -1138,6 +1351,37 @@
         </div>
     </aside>
 
+    <!-- AUTH MODAL — 3-CLICK SYSTEM -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal" role="dialog" aria-modal="true">
+            <div class="auth-modal-logo"><span class="logo-web">Web</span><span class="logo-teb">Teb</span></div>
+            <p class="auth-modal-subtitle">مساعدك الطبي الذكي — ابدأ الآن</p>
+            <div class="auth-error" id="authError"></div>
+            <div class="auth-tabs" role="tablist">
+                <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">إنشاء حساب</button>
+            </div>
+            <!-- Path C: Login -->
+            <div class="auth-panel active" id="panelLogin">
+                <div class="auth-field"><label for="loginEmail">البريد الإلكتروني</label><input type="email"
+                        id="loginEmail" placeholder="example@email.com" autocomplete="email"></div>
+                <div class="auth-field"><label for="loginPassword">كلمة المرور</label><input type="password"
+                        id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+                <button class="auth-submit-btn" id="loginBtn" onclick="handleLogin()">🔑 تسجيل الدخول</button>
+            </div>
+            <!-- Path B: Register -->
+            <div class="auth-panel" id="panelRegister">
+                <div class="auth-field"><label for="regEmail">البريد الإلكتروني</label><input type="email" id="regEmail"
+                        placeholder="example@email.com" autocomplete="email"></div>
+                <div class="auth-field"><label for="regPassword">كلمة المرور</label><input type="password"
+                        id="regPassword" placeholder="8 أحرف على الأقل" autocomplete="new-password"></div>
+                <button class="auth-submit-btn" id="registerBtn" onclick="handleRegister()">✨ إنشاء حساب جديد</button>
+            </div>
+            <!-- Path A: Guest -->
+            <button class="auth-guest-btn" id="guestBtn" onclick="handleGuest()">👤 المتابعة كزائر (بدون تسجيل)</button>
+        </div>
+    </div>
+
     <!-- Sidebar Toggle Button -->
     <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="فتح المحادثات السابقة">
         <i class="fas fa-comments"></i>
@@ -1163,13 +1407,13 @@
         <!-- Modern Header -->
         <header class="top-header">
             <div class="logo-container">
-                <div class="logo-main">
-                    <span class="logo-web">Web</span><span class="logo-teb">Teb</span>
-                </div>
+                <div class="logo-main"><span class="logo-web">Web</span><span class="logo-teb">Teb</span></div>
                 <div class="logo-subtitle">مساعدك الطبي الذكي</div>
             </div>
-            <div style="font-size: 1.5rem; color: var(--webteb-cyan); cursor: pointer;">
-                <i class="fas fa-bars"></i>
+            <!-- User status pill -->
+            <div class="user-status-pill" id="userStatusPill" onclick="handleStatusPillClick()" title="حالة الحساب">
+                <span class="pill-dot guest" id="pillDot"></span>
+                <span id="pillLabel">زائر</span>
             </div>
         </header>
 
@@ -1653,15 +1897,147 @@
 
 
         // --- 2. CHAT FUNCTIONALITY ---
-        // Configuration: Set this to your backend URL when deploying to a different host (e.g., Netlify)
-        const API_BASE_URL = ''; // Leave empty for same-host deployment
+        const API_BASE_URL = ''; // Same-host: backend serves this template
+
+        // ============================================
+        // AUTH STATE
+        // ============================================
+        let authToken = localStorage.getItem('med_token') || null;
+        let guestSessionId = localStorage.getItem('med_id') || null;
+        let currentUserEmail = localStorage.getItem('med_email') || null;
+        let isGuest = localStorage.getItem('med_is_guest') === 'true';
 
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatArea = document.getElementById('chatArea');
-        let guestSessionId = localStorage.getItem('med_id') || 'u_' + Date.now();
-        localStorage.setItem('med_id', guestSessionId);
         let currentConversationId = null;
+
+        // ============================================
+        // AUTH MODAL CONTROLLER
+        // ============================================
+        const authOverlay = document.getElementById('authOverlay');
+        const authError = document.getElementById('authError');
+        const pillDot = document.getElementById('pillDot');
+        const pillLabel = document.getElementById('pillLabel');
+
+        function showAuthError(msg) { authError.textContent = msg; authError.classList.add('visible'); }
+        function clearAuthError() { authError.textContent = ''; authError.classList.remove('visible'); }
+
+        function switchAuthTab(tab) {
+            clearAuthError();
+            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+            document.getElementById('panelLogin').classList.toggle('active', tab === 'login');
+            document.getElementById('panelRegister').classList.toggle('active', tab === 'register');
+        }
+
+        function updateUserPill() {
+            if (!authToken) {
+                pillDot.className = 'pill-dot guest'; pillLabel.textContent = 'زائر';
+            } else if (isGuest) {
+                pillDot.className = 'pill-dot guest'; pillLabel.textContent = 'زائر (مؤقت)';
+            } else {
+                pillDot.className = 'pill-dot';
+                pillLabel.textContent = currentUserEmail ? currentUserEmail.split('@')[0] : 'مستخدم';
+            }
+        }
+
+        function handleStatusPillClick() {
+            if (!authToken || isGuest) {
+                authOverlay.classList.remove('hidden');
+            } else {
+                if (confirm('هل تريد تسجيل الخروج؟')) handleLogout();
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('med_token');
+            localStorage.removeItem('med_email');
+            localStorage.removeItem('med_is_guest');
+            authToken = null; currentUserEmail = null; isGuest = false;
+            updateUserPill();
+            authOverlay.classList.remove('hidden');
+        }
+
+        function persistAuth(token, email, guest, sessionId) {
+            authToken = token; currentUserEmail = email; isGuest = guest;
+            localStorage.setItem('med_token', token);
+            if (email) localStorage.setItem('med_email', email);
+            localStorage.setItem('med_is_guest', String(guest));
+            if (sessionId) { guestSessionId = sessionId; localStorage.setItem('med_id', sessionId); }
+            updateUserPill();
+            authOverlay.classList.add('hidden');
+        }
+
+        // Path A: Guest
+        async function handleGuest() {
+            clearAuthError();
+            const btn = document.getElementById('guestBtn');
+            btn.disabled = true; btn.textContent = '⏳ جاري الاتصال...';
+            try {
+                const res = await fetch('/api/auth/guest', { method: 'POST' });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                persistAuth(data.token.access_token, null, true, data.session_id);
+            } catch (err) {
+                showAuthError('تعذّر الاتصال بالخادم.');
+                console.error('Guest error:', err);
+            } finally {
+                btn.disabled = false; btn.textContent = '👤 المتابعة كزائر (بدون تسجيل)';
+            }
+        }
+
+        // Path B: Register
+        async function handleRegister() {
+            clearAuthError();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            if (!email || !password) { showAuthError('يرجى ملء جميع الحقول.'); return; }
+            if (password.length < 8) { showAuthError('كلمة المرور يجب أن تكون 8 أحرف على الأقل.'); return; }
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true; btn.textContent = '⏳ جاري التسجيل...';
+            try {
+                const body = { email, password };
+                if (guestSessionId && isGuest) body.guest_session_id = guestSessionId;
+                const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.error?.message || 'خطأ في التسجيل.');
+                persistAuth(data.token.access_token, data.user.email, false, null);
+            } catch (err) {
+                showAuthError(err.message || 'خطأ في التسجيل.');
+            } finally {
+                btn.disabled = false; btn.textContent = '✨ إنشاء حساب جديد';
+            }
+        }
+
+        // Path C: Login
+        async function handleLogin() {
+            clearAuthError();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!email || !password) { showAuthError('يرجى ملء جميع الحقول.'); return; }
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true; btn.textContent = '⏳ جاري التحقق...';
+            try {
+                const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.error?.message || 'بيانات الدخول غير صحيحة.');
+                persistAuth(data.token.access_token, data.user.email, false, null);
+                loadConversationsList();
+            } catch (err) {
+                showAuthError(err.message || 'خطأ في تسجيل الدخول.');
+            } finally {
+                btn.disabled = false; btn.textContent = '🔑 تسجيل الدخول';
+            }
+        }
+
+        // Init auth on page load
+        (function initAuth() {
+            updateUserPill();
+            if (authToken) authOverlay.classList.add('hidden');
+            document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+            document.getElementById('regPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); });
+        })();
 
         function setInput(el) {
             userInput.value = el.innerText.substring(2); // Remove emoji
@@ -1964,9 +2340,13 @@
                     filePreviewContainer.classList.remove('active');
                 }
 
+                // Attach JWT if available
+                const chatHeaders = { 'Content-Type': 'application/json' };
+                if (authToken) chatHeaders['Authorization'] = `Bearer ${authToken}`;
+
                 const response = await fetch(`${API_BASE_URL}/api/chat`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: chatHeaders,
                     body: JSON.stringify({
                         message: text,
                         guest_session_id: guestSessionId,
@@ -2053,7 +2433,12 @@
         // Load conversations from the database
         async function loadConversationsList() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/conversations?guest_session_id=${guestSessionId}`);
+                const convHeaders = {};
+                if (authToken) convHeaders['Authorization'] = `Bearer ${authToken}`;
+                const convUrl = authToken && !isGuest
+                    ? `/api/conversations`
+                    : `/api/conversations?guest_session_id=${guestSessionId}`;
+                const response = await fetch(convUrl, { headers: convHeaders });
                 if (!response.ok) return;
 
                 const conversations = await response.json();
@@ -2134,7 +2519,12 @@
 
         async function loadConversationDetails(id) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/conversations/${id}?guest_session_id=${guestSessionId}`);
+                const detailHeaders = {};
+                if (authToken) detailHeaders['Authorization'] = `Bearer ${authToken}`;
+                const detailUrl = authToken && !isGuest
+                    ? `/api/conversations/${id}`
+                    : `/api/conversations/${id}?guest_session_id=${guestSessionId}`;
+                const response = await fetch(detailUrl, { headers: detailHeaders });
                 if (!response.ok) return;
 
                 const data = await response.json();
@@ -2175,9 +2565,12 @@
             if (!confirm('هل أنت متأكد من حذف هذه المحادثة؟')) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/conversations/${id}?guest_session_id=${guestSessionId}`, {
-                    method: 'DELETE'
-                });
+                const delHeaders = {};
+                if (authToken) delHeaders['Authorization'] = `Bearer ${authToken}`;
+                const delUrl = authToken && !isGuest
+                    ? `/api/conversations/${id}`
+                    : `/api/conversations/${id}?guest_session_id=${guestSessionId}`;
+                const response = await fetch(delUrl, { method: 'DELETE', headers: delHeaders });
 
                 if (response.ok) {
                     if (currentConversationId == id) {

@@ -21,13 +21,38 @@ class AppException(Exception):
 
 
 class PlanLimitReachedException(AppException):
-    """Raised when user exceeds plan limits"""
-    
-    def __init__(self, limit: int, details: Optional[Dict[str, Any]] = None):
+    """Raised when user exceeds plan limits — carries structured CTA payload."""
+
+    def __init__(self, limit: int, plan_type: str = "guest", details: Optional[Dict[str, Any]] = None):
+        details = details or {}
+
+        # Build human-friendly CTA copy based on plan
+        if plan_type == "guest":
+            cta_title = "هل تريد المزيد من الإجابات؟"
+            cta_body = (
+                f"لقد استخدمت أسئلتك المجانية الـ {limit} كزائر. "
+                "أنشئ حساباً مجانياً الآن للحصول على 5 أسئلة كل 6 ساعات، "
+                "أو اطّلع على خططنا للوصول غير المحدود."
+            )
+        else:
+            cta_title = "لقد استنفدت حصتك"
+            cta_body = (
+                f"لقد وصلت إلى حد الـ {limit} أسئلة لهذه الدورة. "
+                "يرجى الانتظار حتى إعادة التعيين أو الترقية إلى Pro."
+            )
+
+        details.update({
+            "code": "LIMIT_REACHED",
+            "cta_title": cta_title,
+            "cta_body": cta_body,
+            "limit": limit,
+            "plan_type": plan_type,
+        })
+
         super().__init__(
             code=ErrorCode.PLAN_LIMIT_REACHED,
-            message=f"You have reached your plan limit of {limit} questions. Please upgrade to continue.",
-            details=details or {"limit": limit},
+            message=f"You have reached your plan limit of {limit} questions per 6-hour window.",
+            details=details,
             status_code=403
         )
 
@@ -52,7 +77,7 @@ class ValidationException(AppException):
             code=ErrorCode.VALIDATION_ERROR,
             message=message,
             details=details,
-            status_code=422
+            status_code=400
         )
 
 

@@ -1,19 +1,50 @@
 """Authentication API endpoints"""
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+from datetime import datetime, timedelta, timezone
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import UserCreate, UserLogin
-from app.schemas.auth import Token, AuthResponse
+from app.schemas.auth import Token, AuthResponse, GuestAuthResponse
 from app.schemas.user import UserResponse
 from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.guest_session import GuestSession
 from app.core.security import hash_password, verify_password
 from app.core.auth import create_access_token
+from app.config import settings
 from app.dependencies import require_user
 from app.utils.errors import AlreadyExistsException, UnauthorizedException
+from app.utils.constants import WINDOW_HOURS
+from jose import jwt
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract the real client IP, respecting reverse-proxy headers."""
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+
+
+def create_guest_token(session_id: str) -> str:
+    """
+    Create a short-lived JWT for a guest session.
+    Uses 'guest:<session_id>' as the 'sub' claim so it can never
+    accidentally resolve to a real user_id integer.
+    """
+    expire = datetime.utcnow() + timedelta(hours=24)
+    payload = {
+        "sub": f"guest:{session_id}",
+        "exp": expire,
+        "iat": datetime.utcnow(),
+        "type": "guest",
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 @router.post("/signup", response_model=AuthResponse)
@@ -94,11 +125,64 @@ async def login(
     )
 
 
+@router.post("/guest", response_model=GuestAuthResponse)
+async def guest_login(request: Request, db: Session = Depends(get_db)):
+    """
+    Create (or reuse) a guest session and return a temporary JWT.
+
+    IP Fingerprinting: Before creating a new session, we check if an active
+    session already exists for this IP within the current 6-hour window.
+    If so, we return the EXISTING session to prevent the "clear cookies" loophole.
+
+    The client should:
+    1. Store the returned `session_id` in localStorage as `med_id`.
+    2. Store the returned `token.access_token` in localStorage as `med_token`.
+    3. Pass `Authorization: Bearer <token>` on subsequent requests.
+    """
+    client_ip = _get_client_ip(request)
+    window_start = datetime.now(timezone.utc) - timedelta(hours=WINDOW_HOURS)
+
+    # ── IP Fingerprint Check ─────────────────────────────────────────────────
+    # Look for an existing active session from this IP within the current window
+    existing_session = (
+        db.query(GuestSession)
+        .filter(
+            GuestSession.client_ip == client_ip,
+            GuestSession.created_at >= window_start,
+        )
+        .order_by(GuestSession.created_at.desc())
+        .first()
+    )
+
+    if existing_session:
+        # Reuse the existing session — do NOT grant fresh questions
+        access_token = create_guest_token(existing_session.session_id)
+        return GuestAuthResponse(
+            token=Token(access_token=access_token),
+            session_id=existing_session.session_id,
+            question_count=existing_session.question_count,
+        )
+
+    # ── Create a fresh session ───────────────────────────────────────────────
+    session_id = str(uuid.uuid4())
+    guest_session = GuestSession(session_id=session_id, client_ip=client_ip)
+    db.add(guest_session)
+    db.commit()
+    db.refresh(guest_session)
+
+    access_token = create_guest_token(session_id)
+    return GuestAuthResponse(
+        token=Token(access_token=access_token),
+        session_id=session_id,
+        question_count=0,
+    )
+
+
 @router.post("/logout")
 async def logout():
     """
     Logout endpoint (client-side token removal)
-    
+
     In a stateless JWT system, logout is handled client-side by removing the token.
     This endpoint exists for consistency and can be extended with token blacklisting if needed.
     """

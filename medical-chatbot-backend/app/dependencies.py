@@ -27,11 +27,16 @@ def get_current_user(
         raise UnauthorizedException("Invalid authorization header")
     
     user_id = decode_access_token(token)
+
+    # Guest tokens decode to None — not a registered user
+    if user_id is None:
+        return None
+
     user = db.query(User).filter(User.id == user_id).first()
-    
+
     if not user:
         raise UnauthorizedException("User not found")
-    
+
     return user
 
 

@@ -15,6 +15,7 @@ class ErrorCode(str, Enum):
 
 class PlanType(str, Enum):
     """User plan types"""
+    GUEST = "guest"
     FREE = "free"
     PRO = "pro"
 
@@ -25,11 +26,23 @@ class FeedbackType(str, Enum):
     THUMBS_DOWN = "thumbs_down"
 
 
-# Plan limits configuration
+# ── 6-hour rolling window ──────────────────────────────────────────────────────
+WINDOW_HOURS = 6  # Reset cycle duration in hours
+
+# Max questions allowed per 6-hour window
 PLAN_LIMITS = {
-    PlanType.FREE: 100,
-    PlanType.PRO: 999999  # Essentially unlimited for MVP
+    PlanType.GUEST: 2,
+    PlanType.FREE: 5,
+    PlanType.PRO: 999999,  # Effectively unlimited
 }
+
+# Max words allowed per message
+WORD_LIMITS = {
+    PlanType.GUEST: 20,
+    PlanType.FREE: 25,
+    PlanType.PRO: 1000,
+}
+# ──────────────────────────────────────────────────────────────────────────────
 
 # Emergency keywords that trigger immediate emergency response
 EMERGENCY_KEYWORDS = [

@@ -38,7 +38,8 @@ class UserResponse(UserBase):
     """Schema for user response"""
     id: int
     plan_type: PlanType
-    questions_used: int
+    questions_used: int       # All time
+    question_count: int = 0   # Current window usage
     full_name: Optional[str] = None
     age: Optional[int] = None
     gender: Optional[str] = None
