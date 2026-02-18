@@ -4,7 +4,7 @@ A professional-grade, HIPAA-compliant (conceptually) medical AI assistant featur
 
 This project is a full-stack application designed to provide accurate, source-cited medical information while minimizing operational costs through intelligent decision-making.
 
----
+--- 
 
 ## 🚀 Key Features
 
