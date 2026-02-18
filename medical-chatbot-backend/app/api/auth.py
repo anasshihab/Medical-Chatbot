@@ -18,7 +18,11 @@ from app.utils.errors import AlreadyExistsException, UnauthorizedException
 from app.utils.constants import WINDOW_HOURS
 from jose import jwt
 
-router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+router = APIRouter(
+    prefix="/api/auth",
+    tags=["Authentication"],
+    redirect_slashes=False,  # Prevent 307 redirects that break CORS preflight
+)
 
 
 def _get_client_ip(request: Request) -> str:
@@ -177,6 +181,12 @@ async def guest_login(request: Request, db: Session = Depends(get_db)):
         question_count=0,
     )
 
+
+# Trailing-slash alias — some fetch clients append a trailing slash
+@router.post("/guest/", response_model=GuestAuthResponse, include_in_schema=False)
+async def guest_login_slash(request: Request, db: Session = Depends(get_db)):
+    """Alias for /guest without trailing slash (prevents 404 / 307 redirect)."""
+    return await guest_login(request, db)
 
 @router.post("/logout")
 async def logout():
