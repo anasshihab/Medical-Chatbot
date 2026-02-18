@@ -73,7 +73,6 @@ OPENAI_API_KEY=your_key_here
 DATABASE_URL=sqlite:///./sql_app.db
 DEBUG=True
 ```
-
 ### 3. Installation
 ```bash
 cd medical-chatbot-backend
