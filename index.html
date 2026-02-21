@@ -2028,319 +2028,344 @@
             .topic-chip {
                 border-width: 0.5px;
             }
+        }
 
-            /* Badge Styles */
+        /* Badge Styles */
+        .glass-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-badge.hidden {
+            display: none;
+        }
+
+        .glass-badge .badge-icon {
+            color: #f59e0b;
+        }
+
+        @media (max-width: 768px) {
             .glass-badge {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                padding: 0.4rem 0.8rem;
-                border-radius: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: var(--text-dark);
-                font-size: 0.85rem;
-                font-weight: 600;
-                margin-left: 0.75rem;
-                transition: all 0.3s ease;
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
             }
 
-            .glass-badge.hidden {
+            .badge-text {
                 display: none;
             }
 
-            .glass-badge .badge-icon {
-                color: #f59e0b;
+            .glass-badge::after {
+                content: attr(data-count) "/" attr(data-limit);
+                margin-left: 4px;
+            }
+        }
+
+        /* Reduced Motion - Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
 
-            @media (max-width: 768px) {
-                .glass-badge {
-                    font-size: 0.75rem;
-                    padding: 0.3rem 0.6rem;
-                }
-
-                .badge-text {
-                    display: none;
-                }
-
-                /* Show icon only on small screens if concise */
-                .glass-badge::after {
-                    content: attr(data-count) "/" attr(data-limit);
-                    margin-left: 4px;
-                }
+            .topics-row {
+                animation: none !important;
             }
 
-            /* Reduced Motion - Accessibility */
-            @media (prefers-reduced-motion: reduce) {
-                * {
-                    animation-duration: 0.01ms !important;
-                    animation-iteration-count: 1 !important;
-                    transition-duration: 0.01ms !important;
-                }
-
-                .topics-row {
-                    animation: none !important;
-                }
-
-                .light-particle,
-                .cursor-glow {
-                    display: none;
-                }
-            }
-
-            /* Print Styles */
-            @media print {
-
-                .sidebar,
-                .sidebar-toggle-btn,
-                .side-actions,
-                .top-header,
-                .search-container,
-                .topics-scroll-container,
-                #canvas-container {
-                    display: none !important;
-                }
-
-                .content-card {
-                    box-shadow: none;
-                    border: 1px solid #ccc;
-                }
-
-                .chat-messages {
-                    max-height: none;
-                    overflow: visible;
-                }
-            }
-
-            /* ── Word Counter Over-Limit ── */
-            .word-counter-bar.over-limit {
-                color: #ff4444;
-                font-weight: 700;
-                animation: shake 0.3s ease-in-out;
-            }
-
-            @keyframes shake {
-
-                0%,
-                100% {
-                    transform: translateX(0);
-                }
-
-                25% {
-                    transform: translateX(-4px);
-                }
-
-                75% {
-                    transform: translateX(4px);
-                }
-            }
-
-            /* ── Limit Reached Modal ─────────────────────────────────────────────── */
-            .lr-overlay {
-                position: fixed;
-                inset: 0;
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(0, 0, 0, 0.72);
-                backdrop-filter: blur(8px);
-                -webkit-backdrop-filter: blur(8px);
-                padding: 1rem;
-                transition: opacity 0.25s ease;
-            }
-
-            .lr-overlay.hidden {
+            .light-particle,
+            .cursor-glow {
                 display: none;
             }
+        }
 
+        /* Print Styles */
+        @media print {
+
+            .sidebar,
+            .sidebar-toggle-btn,
+            .side-actions,
+            .top-header,
+            .search-container,
+            .topics-scroll-container,
+            #canvas-container {
+                display: none !important;
+            }
+
+            .content-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+
+            .chat-messages {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+
+        /* ── Word Counter Over-Limit ── */
+        .word-counter-bar.over-limit {
+            color: #ff4444;
+            font-weight: 700;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* ══════════════════════════════════════════════
+         *  LIMIT REACHED MODAL — Glassmorphism Dark
+         * ══════════════════════════════════════════════ */
+        .lr-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 10, 30, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1rem;
+            transition: opacity 0.25s ease;
+        }
+
+        .lr-overlay.hidden {
+            display: none;
+        }
+
+        .lr-modal {
+            position: relative;
+            /* Glassmorphism: semi-transparent dark with vibrant border */
+            background: linear-gradient(145deg,
+                    rgba(10, 18, 40, 0.94) 0%,
+                    rgba(15, 28, 60, 0.94) 100%);
+            border: 1px solid rgba(24, 193, 245, 0.3);
+            border-radius: 28px;
+            padding: 2.5rem 2rem 2rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow:
+                0 32px 80px rgba(0, 0, 0, 0.55),
+                0 0 0 1px rgba(24, 193, 245, 0.08) inset,
+                0 0 60px rgba(24, 193, 245, 0.07);
+            animation: lrSlideUp 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            text-align: center;
+            color: #e2e8f0;
+        }
+
+        @keyframes lrSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.93);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .lr-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .lr-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .lr-header {
+            margin-bottom: 1.25rem;
+        }
+
+        .lr-icon {
+            font-size: 3.2rem;
+            margin-bottom: 0.6rem;
+            line-height: 1;
+            /* subtle glow behind the emoji */
+            filter: drop-shadow(0 0 18px rgba(239, 68, 68, 0.5));
+        }
+
+        .lr-title {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin: 0 0 0.45rem;
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .lr-subtitle {
+            font-size: 0.92rem;
+            color: #94a3b8;
+            margin: 0;
+            line-height: 1.55;
+        }
+
+        .lr-countdown-box {
+            background: rgba(24, 193, 245, 0.07);
+            border: 1px solid rgba(24, 193, 245, 0.22);
+            border-radius: 16px;
+            padding: 0.9rem 1.5rem;
+            margin: 1.3rem 0;
+        }
+
+        .lr-countdown-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.35rem;
+            letter-spacing: 0.03em;
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .lr-countdown-timer {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(135deg, #18c1f5, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.08em;
+        }
+
+        .lr-cta-body {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            line-height: 1.65;
+            margin: 0 0 1.5rem;
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .lr-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.3rem;
+        }
+
+        /* Primary CTA — Create Free Account — vibrant green */
+        .lr-btn-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Almarai', sans-serif;
+            cursor: pointer;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 5px 22px rgba(34, 197, 94, 0.38);
+            transition: transform 0.18s, box-shadow 0.18s;
+            text-decoration: none;
+        }
+
+        .lr-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.5);
+            color: #fff;
+        }
+
+        /* Secondary CTA — View Pro Plans — cyan glass */
+        .lr-btn-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid rgba(24, 193, 245, 0.38);
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Almarai', sans-serif;
+            cursor: pointer;
+            background: rgba(24, 193, 245, 0.08);
+            color: #18c1f5;
+            transition: background 0.2s, border-color 0.2s, transform 0.18s;
+            text-decoration: none;
+        }
+
+        .lr-btn-secondary:hover {
+            background: rgba(24, 193, 245, 0.16);
+            border-color: rgba(24, 193, 245, 0.65);
+            transform: translateY(-2px);
+            color: #60d6fa;
+        }
+
+        .lr-footer {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin: 0;
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .lr-footer a {
+            color: #18c1f5;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .lr-footer a:hover {
+            text-decoration: underline;
+            color: #60d6fa;
+        }
+
+        @media (max-width: 480px) {
             .lr-modal {
-                position: relative;
-                background: linear-gradient(145deg, rgba(15, 23, 42, 0.97) 0%, rgba(22, 34, 60, 0.97) 100%);
-                border: 1px solid rgba(99, 179, 237, 0.25);
-                border-radius: 24px;
-                padding: 2.5rem 2rem 2rem;
-                max-width: 480px;
-                width: 100%;
-                box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-                animation: lrSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-                text-align: center;
-                color: #e2e8f0;
-            }
-
-            @keyframes lrSlideUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(40px) scale(0.95);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
-            }
-
-            .lr-close {
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-                background: rgba(255, 255, 255, 0.08);
-                border: none;
-                border-radius: 50%;
-                width: 34px;
-                height: 34px;
-                color: #94a3b8;
-                cursor: pointer;
-                font-size: 0.85rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: background 0.2s, color 0.2s;
-            }
-
-            .lr-close:hover {
-                background: rgba(239, 68, 68, 0.2);
-                color: #f87171;
-            }
-
-            .lr-header {
-                margin-bottom: 1.25rem;
-            }
-
-            .lr-icon {
-                font-size: 3rem;
-                margin-bottom: 0.5rem;
-                line-height: 1;
+                padding: 2rem 1.25rem 1.5rem;
             }
 
             .lr-title {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #f1f5f9;
-                margin: 0 0 0.4rem;
-            }
-
-            .lr-subtitle {
-                font-size: 0.9rem;
-                color: #94a3b8;
-                margin: 0;
-                line-height: 1.5;
-            }
-
-            .lr-countdown-box {
-                background: rgba(99, 179, 237, 0.08);
-                border: 1px solid rgba(99, 179, 237, 0.2);
-                border-radius: 14px;
-                padding: 0.85rem 1.25rem;
-                margin: 1.25rem 0;
-            }
-
-            .lr-countdown-label {
-                font-size: 0.78rem;
-                color: #64748b;
-                margin-bottom: 0.3rem;
-                letter-spacing: 0.03em;
+                font-size: 1.3rem;
             }
 
             .lr-countdown-timer {
-                font-size: 2rem;
-                font-weight: 800;
-                font-variant-numeric: tabular-nums;
-                background: linear-gradient(135deg, #63b3ed, #a78bfa);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                letter-spacing: 0.05em;
+                font-size: 1.7rem;
             }
-
-            .lr-cta-body {
-                font-size: 0.875rem;
-                color: #94a3b8;
-                line-height: 1.6;
-                margin: 0 0 1.5rem;
-            }
-
-            .lr-actions {
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .lr-btn-primary {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-                padding: 0.85rem 1.5rem;
-                border: none;
-                border-radius: 12px;
-                font-size: 0.95rem;
-                font-weight: 700;
-                cursor: pointer;
-                background: linear-gradient(135deg, #22c55e, #16a34a);
-                color: #fff;
-                box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
-                transition: transform 0.15s, box-shadow 0.15s;
-            }
-
-            .lr-btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(34, 197, 94, 0.45);
-            }
-
-            .lr-btn-secondary {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-                padding: 0.75rem 1.5rem;
-                border: 1px solid rgba(99, 179, 237, 0.35);
-                border-radius: 12px;
-                font-size: 0.9rem;
-                font-weight: 600;
-                cursor: pointer;
-                background: transparent;
-                color: #63b3ed;
-                transition: background 0.2s, border-color 0.2s;
-            }
-
-            .lr-btn-secondary:hover {
-                background: rgba(99, 179, 237, 0.1);
-                border-color: rgba(99, 179, 237, 0.6);
-            }
-
-            .lr-footer {
-                font-size: 0.8rem;
-                color: #64748b;
-                margin: 0;
-            }
-
-            .lr-footer a {
-                color: #63b3ed;
-                text-decoration: none;
-                font-weight: 600;
-            }
-
-            .lr-footer a:hover {
-                text-decoration: underline;
-            }
-
-            @media (max-width: 480px) {
-                .lr-modal {
-                    padding: 2rem 1.25rem 1.5rem;
-                }
-
-                .lr-title {
-                    font-size: 1.25rem;
-                }
-
-                .lr-countdown-timer {
-                    font-size: 1.6rem;
-                }
-            }
+        }
     </style>
 </head>
 
@@ -2513,10 +2538,10 @@
                     <i class="fas fa-user-plus"></i>
                     إنشاء حساب مجاني (+5 أسئلة)
                 </button>
-                <button class="lr-btn-secondary" onclick="hideLimitReachedModal(); showPricingModal()">
+                <a class="lr-btn-secondary" href="/pricing.html">
                     <i class="fas fa-gem"></i>
                     عرض الخطط الاحترافية
-                </button>
+                </a>
             </div>
 
             <p class="lr-footer">لديك حساب بالفعل؟
@@ -3844,14 +3869,14 @@
                     updateCreditBadge(currentQUsed);
                 }
 
-                // ── Handle 403: Plan limit reached ───────────────────────────
-                if (response.status === 403) {
+                // ── Handle 403 / 429: Plan limit reached ─────────────────────
+                if (response.status === 403 || response.status === 429) {
                     const errData = await response.json().catch(() => ({}));
                     const resetIso = errData?.error?.details?.next_reset_time || null;
                     document.getElementById(loadId).remove();
-                    // Show countdown banner
+                    // Show countdown banner inside the chat card
                     if (resetIso) showLimitBanner(resetIso);
-                    // Show the conversion-focused Limit Reached modal
+                    // Show the glassmorphism Limit Reached modal
                     showLimitReachedModal(errData);
                     return;
                 }
