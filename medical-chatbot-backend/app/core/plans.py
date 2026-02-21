@@ -19,11 +19,25 @@ def get_word_limit(plan_type: PlanType) -> int:
 def count_words(text: str) -> int:
     """
     Character-based word counter.
-    1 word = 5 characters (including spaces and punctuation).
-    Formula: math.ceil(len(text) / 5)
-    Example: 12 characters -> math.ceil(12 / 5) = 3 words.
+    1 word = exactly 5 characters (including spaces and punctuation).
+
+    Algorithm:
+      1. Strip leading/trailing whitespace so padding cannot skew the count.
+      2. If the result is empty, return 0.
+      3. Otherwise: math.ceil(char_count / 5.0)
+
+    Examples:
+      ""          ->  0  (empty)
+      "hi"        ->  1  (ceil(2/5)  = 1)
+      "hello"     ->  1  (ceil(5/5)  = 1)
+      "hello!"    ->  2  (ceil(6/5)  = 2)
+      12-char str ->  3  (ceil(12/5) = 3)
     """
-    return math.ceil(len(text) / 5) if text else 0
+    clean_text = text.strip() if text else ""
+    char_count = len(clean_text)
+    if char_count == 0:
+        return 0
+    return math.ceil(char_count / 5.0)
 
 
 def check_word_limit(message: str, plan_type: PlanType) -> None:
