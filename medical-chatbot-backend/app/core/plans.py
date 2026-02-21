@@ -1,4 +1,5 @@
 """Plan limits, word-count enforcement, and 6-hour window gating"""
+import math
 from datetime import datetime
 from app.utils.constants import PlanType, PLAN_LIMITS, WORD_LIMITS
 from app.utils.errors import PlanLimitReachedException, ValidationException
@@ -15,12 +16,23 @@ def get_word_limit(plan_type: PlanType) -> int:
     return WORD_LIMITS.get(plan_type, WORD_LIMITS[PlanType.FREE])
 
 
+def count_words(text: str) -> int:
+    """
+    Character-based word counter.
+    1 word = 5 characters (including spaces and punctuation).
+    Formula: math.ceil(len(text) / 5)
+    Example: 12 characters -> math.ceil(12 / 5) = 3 words.
+    """
+    return math.ceil(len(text) / 5) if text else 0
+
+
 def check_word_limit(message: str, plan_type: PlanType) -> None:
     """
     Validate that the message does not exceed the word limit for the plan.
+    Word count is calculated using the character-based formula: math.ceil(len(message) / 5).
     Raises ValidationException (HTTP 400) if exceeded.
     """
-    word_count = len(message.split())
+    word_count = count_words(message)
     limit = get_word_limit(plan_type)
     if word_count > limit:
         raise ValidationException(
