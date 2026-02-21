@@ -753,39 +753,6 @@
         /* ==========================================
          * LIMIT COUNTDOWN BANNER
          * ========================================== */
-        .limit-banner {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: linear-gradient(135deg, rgba(255, 100, 100, 0.12), rgba(255, 150, 50, 0.12));
-            border: 1px solid rgba(229, 62, 62, 0.3);
-            border-radius: 16px;
-            padding: 14px 20px;
-            margin-bottom: 16px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .limit-banner.visible {
-            display: flex;
-        }
-
-        .limit-banner-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .limit-banner-text {
-            flex: 1;
-        }
-
-        .limit-banner-title {
-            font-weight: 700;
-            color: #c53030;
-            font-size: 0.95rem;
-            margin-bottom: 2px;
-        }
-
         .limit-banner-countdown {
             font-size: 1.1rem;
             font-weight: 800;
@@ -2972,17 +2939,6 @@
                     <!-- File previews will appear here -->
                 </div>
 
-                <!-- LIMIT COUNTDOWN BANNER -->
-                <div class="limit-banner" id="limitBanner">
-                    <div class="limit-banner-icon">⏳</div>
-                    <div class="limit-banner-text">
-                        <div class="limit-banner-title">لقد استنفدت أسئلتك المجانية</div>
-                        <div>الأسئلة المجانية القادمة في: <span class="limit-banner-countdown"
-                                id="bannerCountdown">--:--:--</span></div>
-                    </div>
-                    <button class="limit-banner-upgrade" onclick="showPricingModal()">⚡ ترقية الخطة</button>
-                </div>
-
                 <!-- SEARCH -->
                 <div class="search-container">
                     <div class="search-box">
@@ -3674,7 +3630,9 @@
         }
 
         function getWordCount(text) {
-            return text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const cleanText = text.trim();
+            const charCount = cleanText.length;
+            return charCount === 0 ? 0 : Math.ceil(charCount / 5);
         }
 
         // ── Word counter live update ──────────────────────────────────────────
@@ -3719,15 +3677,12 @@
                 const ms = nextResetTime - Date.now();
                 const display = formatCountdown(ms);
                 // Sync all countdown displays
-                const bannerEl = document.getElementById('bannerCountdown');
                 const pricingEl = document.getElementById('pricingCountdown');
                 const lrEl = document.getElementById('lrCountdown');
-                if (bannerEl) bannerEl.textContent = display;
                 if (pricingEl) pricingEl.textContent = display;
                 if (lrEl) lrEl.textContent = display;
                 if (ms <= 0) {
                     clearInterval(countdownInterval);
-                    hideLimitBanner();
                     sendBtn.disabled = false;
                     sendBtn.style.opacity = '1';
                 }
@@ -3736,16 +3691,7 @@
             countdownInterval = setInterval(tick, 1000);
         }
 
-        function showLimitBanner(resetIso) {
-            document.getElementById('limitBanner').classList.add('visible');
-            sendBtn.disabled = true;
-            sendBtn.style.opacity = '0.45';
-            startCountdown(resetIso);
-        }
 
-        function hideLimitBanner() {
-            document.getElementById('limitBanner').classList.remove('visible');
-        }
 
         // ── Limit Reached Modal ───────────────────────────────────────────────
         function showLimitReachedModal(payload) {
@@ -3872,10 +3818,9 @@
                 // ── Handle 403 / 429: Plan limit reached ─────────────────────
                 if (response.status === 403 || response.status === 429) {
                     const errData = await response.json().catch(() => ({}));
-                    const resetIso = errData?.error?.details?.next_reset_time || null;
                     document.getElementById(loadId).remove();
-                    // Show countdown banner inside the chat card
-                    if (resetIso) showLimitBanner(resetIso);
+                    // Disable input briefly
+                    sendBtn.disabled = true;
                     // Show the glassmorphism Limit Reached modal
                     showLimitReachedModal(errData);
                     return;
