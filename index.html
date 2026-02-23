@@ -646,6 +646,34 @@
             font-weight: 700;
         }
 
+        .usage-metrics-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--text-med);
+            opacity: 0.8;
+            padding: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .usage-metrics-bar .metrics-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(24, 193, 245, 0.05);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(24, 193, 245, 0.1);
+        }
+
+        .usage-metrics-bar .wc-icon {
+            font-size: 0.7rem;
+            color: var(--webteb-cyan);
+        }
+
         .word-counter-bar .wc-icon {
             font-size: 0.75rem;
             opacity: 0.7;
@@ -2859,6 +2887,18 @@
                     <span>عدد الكلمات: <span class="word-counter-num" id="wordCountNum">0</span> / <span
                             id="wordCountLimit">20</span></span>
                 </div>
+
+                <!-- AI USAGE METRICS (Tokens & Cost) -->
+                <div class="usage-metrics-bar" id="usageMetrics">
+                    <div class="metrics-item" title="إجمالي الرموز (Input + Output)">
+                        <i class="fas fa-microchip wc-icon"></i>
+                        <span>الرموز: <span id="sessionTokens">0</span></span>
+                    </div>
+                    <div class="metrics-item" title="إجمالي تكلفة الجلسة بالدولار">
+                        <i class="fas fa-coins wc-icon"></i>
+                        <span>التكلفة: $<span id="sessionCost">0.00000</span></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2903,6 +2943,10 @@
 
         console.log('🔗 Backend API URL:', API_BASE_URL);
         console.log('💡 Override: localStorage.setItem("med_api_url", "YOUR_URL")');
+
+        // AI Usage Tracking (Session Level)
+        let totalSessionTokens = 0;
+        let totalSessionCost = 0.0;
 
 
         // ============================================
@@ -3626,6 +3670,33 @@
                                     botMsg += json.data;
                                     msgDiv.innerHTML = marked.parse(botMsg);
                                 } else if (json.type === 'done') {
+                                    // Extract usage metadata if available
+                                    if (json.data) {
+                                        const cost = json.data.total_cost || 0;
+                                        const tokens = (json.data.total_input_tokens || 0) + (json.data.total_output_tokens || 0);
+
+                                        // Update session accumulators
+                                        totalSessionCost += cost;
+                                        totalSessionTokens += tokens;
+
+                                        // Update UI
+                                        const costEl = document.getElementById('sessionCost');
+                                        const tokensEl = document.getElementById('sessionTokens');
+                                        if (costEl) costEl.textContent = totalSessionCost.toFixed(5);
+                                        if (tokensEl) tokensEl.textContent = totalSessionTokens;
+
+                                        // Highlight or briefly animate the metrics bar to show update
+                                        const metricsBar = document.getElementById('usageMetrics');
+                                        if (metricsBar) {
+                                            metricsBar.style.opacity = '1';
+                                            metricsBar.style.transform = 'scale(1.05)';
+                                            setTimeout(() => {
+                                                metricsBar.style.opacity = '0.8';
+                                                metricsBar.style.transform = 'scale(1)';
+                                            }, 500);
+                                        }
+                                    }
+
                                     if (!currentConversationId && json.data.conversation_id) {
                                         currentConversationId = json.data.conversation_id;
                                         loadConversationsList();
