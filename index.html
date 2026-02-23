@@ -104,6 +104,8 @@
             object-fit: contain;
             margin: 0 auto 1.5rem auto;
             display: block;
+            mix-blend-mode: multiply;
+            /* Ensures rectangular background disappears */
         }
 
         /* Main Content - Floating Glass Card */
@@ -984,7 +986,7 @@
         }
 
         .auth-modal {
-            background: linear-gradient(to bottom, #f1f9fd 0%, #f1f9fd 50%, #5cd3f7 100%) !important;
+            background: linear-gradient(to bottom, #f8fdff 0%, #f8fdff 30%, #5cd3f7 100%) !important;
             backdrop-filter: blur(30px);
             border-radius: 28px;
             padding: 2.5rem 2.25rem 2rem;
