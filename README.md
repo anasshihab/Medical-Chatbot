@@ -3,7 +3,7 @@
 A professional-grade, HIPAA-compliant (conceptually) medical AI assistant featuring a **premium glassmorphism frontend** and a **sophisticated agentic backend**. Built with FastAPI, OpenAI GPT-4o-mini, and advanced token optimization strategies.
  
 This project is a full-stack application designed to provide accurate, source-cited medical information while minimizing operational costs through intelligent decision-making and strict usage gating.
-
+   
 ---
 
 ## 🚀 Key Features
