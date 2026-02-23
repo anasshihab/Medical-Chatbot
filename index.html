@@ -88,8 +88,9 @@
             object-fit: contain;
             cursor: pointer;
             mix-blend-mode: multiply;
-            /* Blends logo with background, removing white box */
-            filter: contrast(1.1);
+            /* Mathematically removes the image's background box */
+            filter: brightness(1.05) contrast(1.1);
+            /* Ensures logo background is pure white before blending */
             transition: transform 0.2s ease;
         }
 
