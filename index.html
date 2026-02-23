@@ -163,15 +163,18 @@
             font-size: 1.1rem;
             color: var(--text-med);
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 15px;
+            /* Reduced white space */
             font-weight: 500;
         }
 
         /* Chips - Glossy & Vibrant */
         .topics-scroll-container {
             overflow: hidden;
-            margin: 0 -20px 45px -20px;
-            padding: 20px 0;
+            margin: 0 -20px 15px -20px;
+            /* Reduced vertical margins */
+            padding: 10px 0;
+            /* Tighter padding */
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
@@ -557,7 +560,8 @@
 
         /* Messages Area */
         .chat-messages {
-            max-height: 500px;
+            max-height: 65vh;
+            /* Responsive height */
             overflow-y: auto;
             border-radius: 20px;
             padding: 20px;
@@ -592,6 +596,16 @@
             color: var(--text-dark);
             border-bottom-right-radius: 2px;
             border: 1px solid rgba(24, 193, 245, 0.2);
+        }
+
+        /* Compact Markdown Typography in Bubbles */
+        .message-bubble p {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .message-bubble p:last-child {
+            margin-bottom: 0;
         }
 
         @keyframes fadeIn {
@@ -2267,6 +2281,45 @@
 
             .lr-countdown-timer {
                 font-size: 1.7rem;
+            }
+        }
+
+        /* ==========================================
+         * DESKTOP PERSISTENT SIDEBAR (> 1024px)
+         * ========================================== */
+        @media (min-width: 1024px) {
+            body {
+                display: flex;
+                flex-direction: row;
+                /* Sidebar on right in RTL */
+            }
+
+            .sidebar {
+                position: sticky;
+                top: 0;
+                transform: translateX(0) !important;
+                width: 320px;
+                min-width: 320px;
+                height: 100vh;
+                border-left: 1px solid rgba(24, 193, 245, 0.2);
+                background: rgba(255, 255, 255, 0.98);
+                z-index: 1000;
+            }
+
+            .page-container {
+                flex: 1;
+                min-width: 0;
+            }
+
+            /* Hide mobile toggle UI on desktop */
+            .sidebar-toggle-btn,
+            .close-sidebar-btn {
+                display: none !important;
+            }
+
+            /* Adjust main content padding for desktop flow */
+            .main-content {
+                padding: 40px;
             }
         }
     </style>
