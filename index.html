@@ -70,36 +70,22 @@
             z-index: 1000;
         }
 
-        .logo-container {
+        .logo-link {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 3px;
+            text-decoration: none;
         }
 
-        .logo-main {
-            font-size: 2.2rem;
-            font-weight: 700;
-            font-family: 'Inter', 'Almarai', sans-serif;
-            line-height: 1;
-            letter-spacing: -0.5px;
+        .header-logo {
+            max-height: 45px;
+            width: auto;
+            object-fit: contain;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        .logo-web {
-            color: #18c1f5;
-        }
-
-        .logo-teb {
-            color: #2d9cae;
-        }
-
-        .logo-subtitle {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: var(--text-med);
-            opacity: 0.75;
-            letter-spacing: 0.3px;
-            font-family: 'Almarai', sans-serif;
+        .header-logo:hover {
+            transform: scale(1.05);
         }
 
         /* Main Content - Floating Glass Card */
@@ -2534,12 +2520,10 @@
     <div class="page-container d-flex flex-column min-vh-100">
         <!-- Modern Header -->
         <header class="top-header">
-            <div class="logo-container">
-                <div class="logo-main">
-                    <span class="logo-web">Web</span><span class="logo-teb">Teb</span>
-                </div>
-                <div class="logo-subtitle">مساعدك الطبي الذكي</div>
-            </div>
+            <!-- Logo acting as Home Button -->
+            <a href="index.html" class="logo-link">
+                <img src="assets/webteb-logo.png" alt="WebTeb Logo" class="header-logo">
+            </a>
             <!-- Questions Badge -->
             <div id="credit-badge" class="glass-badge hidden">
                 <span class="badge-icon">⚡</span>
