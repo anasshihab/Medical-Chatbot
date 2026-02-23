@@ -61,16 +61,16 @@
          * =========================================
          */
 
-        /* Header - Tinted Glass */
+        /* Header - Tinted Glass with Brand Gradient */
         .top-header {
-            background: rgba(255, 255, 255, 0.7);
+            background: linear-gradient(to left, rgba(0, 179, 215, 0.15) 0%, rgba(255, 255, 255, 0.7) 30%, rgba(255, 255, 255, 0.7) 100%);
             backdrop-filter: blur(20px);
             padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2.188rem);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(24, 193, 245, 0.2);
-            box-shadow: 0 4px 30px rgba(24, 193, 245, 0.1);
+            border-bottom: 1px solid rgba(0, 179, 215, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 179, 215, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -83,10 +83,13 @@
         }
 
         .header-logo {
-            max-height: 45px;
+            max-height: 50px;
             width: auto;
             object-fit: contain;
             cursor: pointer;
+            mix-blend-mode: multiply;
+            /* Blends logo with background, removing white box */
+            filter: contrast(1.1);
             transition: transform 0.2s ease;
         }
 
