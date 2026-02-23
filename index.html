@@ -124,9 +124,11 @@
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(230, 250, 255, 0.9));
             backdrop-filter: blur(20px);
             border-radius: 30px;
-            padding: clamp(2rem, 4vw, 3.125rem) clamp(1.5rem, 3.5vw, 2.813rem);
+            padding: clamp(1.5rem, 4vw, 3rem);
+            /* Fluid padding */
             max-width: min(950px, 95vw);
-            width: 100%;
+            width: 95%;
+            /* Fluid width */
             box-shadow:
                 0 20px 50px rgba(24, 193, 245, 0.15),
                 inset 0 0 0 1px rgba(255, 255, 255, 0.6);
@@ -266,8 +268,8 @@
 
         .search-input {
             width: 100%;
-            /* RTL specific padding: larger on left for send button, larger on right for attach + voice buttons */
-            padding: 22px 140px 22px 70px;
+            /* RTL: Right side icons (Mic/Attach) need ~130px, Left side (Send) needs ~70px */
+            padding: 1.25rem 130px 1.25rem 70px;
             border: none;
             border-radius: 20px;
             font-size: 1.1rem;
@@ -277,38 +279,9 @@
                 0 5px 20px rgba(24, 193, 245, 0.15);
             transition: all 0.3s ease;
             color: var(--text-dark);
-
-            .search-input:focus {
-                outline: none;
-                background: #ffffff;
-                box-shadow:
-                    0 0 0 3px rgba(24, 193, 245, 0.3),
-                    0 10px 30px rgba(24, 193, 245, 0.2);
-                transform: translateY(-2px);
-            }
-
-            .search-btn {
-                position: absolute;
-                left: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 50px;
-                height: 50px;
-                border-radius: 16px;
-                background: var(--webteb-cyan);
-                border: none;
-                color: white;
-                font-size: 1.2rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(24, 193, 245, 0.4);
-                z-index: 10;
-            }
-
-            .search-btn:hover {
-                transform: translateY(-50%) scale(1.1);
-                background: var(--webteb-dark-cyan);
-            }
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .search-input:focus {
@@ -2285,39 +2258,50 @@
         }
 
         /* ==========================================
-         * DESKTOP PERSISTENT SIDEBAR (> 1024px)
+         * DESKTOP TOGGLEABLE SIDEBAR (> 1024px)
          * ========================================== */
         @media (min-width: 1024px) {
             body {
                 display: flex;
                 flex-direction: row;
-                /* Sidebar on right in RTL */
+                overflow-x: hidden;
             }
 
             .sidebar {
-                position: sticky;
+                position: fixed;
+                right: 0;
                 top: 0;
+                bottom: 0;
+                transform: translateX(100%) !important;
+                width: 0;
+                min-width: 0;
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1000;
+                overflow: hidden;
+            }
+
+            .sidebar.open {
                 transform: translateX(0) !important;
                 width: 320px;
                 min-width: 320px;
-                height: 100vh;
-                border-left: 1px solid rgba(24, 193, 245, 0.2);
-                background: rgba(255, 255, 255, 0.98);
-                z-index: 1000;
             }
 
             .page-container {
                 flex: 1;
-                min-width: 0;
+                transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                margin-right: 0;
             }
 
-            /* Hide mobile toggle UI on desktop */
-            .sidebar-toggle-btn,
-            .close-sidebar-btn {
-                display: none !important;
+            .sidebar.open~.page-container {
+                margin-right: 320px;
             }
 
-            /* Adjust main content padding for desktop flow */
+            /* Show toggle btn on desktop */
+            .sidebar-toggle-btn {
+                display: flex !important;
+            }
+
+            /* Adjust main content padding */
             .main-content {
                 padding: 40px;
             }
