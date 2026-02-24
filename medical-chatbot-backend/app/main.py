@@ -26,7 +26,9 @@ async def startup_event():
 # CORS — Explicit origin list (wildcard + credentials is rejected by browsers)
 # ---------------------------------------------------------------------------
 ALLOWED_ORIGINS = [
-    "https://YOUR_VERCEL_APP_URL.vercel.app",    # <-- New Vercel Widget placeholder URL
+    "https://medical-chatbot-git-feature-usage-limits-anas-projects-30c1c013.vercel.app",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
 ]
 
 app.add_middleware(
