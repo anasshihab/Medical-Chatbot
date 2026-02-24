@@ -26,28 +26,15 @@ async def startup_event():
 # CORS — Explicit origin list (wildcard + credentials is rejected by browsers)
 # ---------------------------------------------------------------------------
 ALLOWED_ORIGINS = [
-    # ── Production Vercel frontend ──────────────────────────────────────────
-    "https://medical-chatbot-ashy.vercel.app",   # <-- your main Vercel domain
-    "https://*.vercel.app",                       # Vercel preview deployments
-    "https://*.vercel.live",                      # Vercel Live share links
-    # ── Render backend (self-calls / health checks) ─────────────────────────
-    "https://medical-chatbot-1-m6re.onrender.com",
-    # ── Local development ───────────────────────────────────────────────────
-    "http://localhost:3000",
-    "http://localhost:5500",
-    "http://localhost:8000",
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:8000",
+    "https://YOUR_VERCEL_APP_URL.vercel.app",    # <-- New Vercel Widget placeholder URL
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # catch all preview URLs
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept", "Origin",
-                   "X-Requested-With", "X-Forwarded-For"],
+    allow_methods=["*"],
+    allow_headers=["*"],
     expose_headers=["Content-Length"],
     max_age=600,  # preflight cache: 10 minutes
 )

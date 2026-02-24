@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WebTeb Chat Widget</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --webteb-cyan: #00B3D7;
+            --webteb-dark-cyan: #1D5D74;
+            --text-dark: #2D3748;
+            --text-med: #4A5568;
+        }
+
+        /* 
+         * Set to 100vw/100vh with no scrollbars for precise iframe fitting 
+         */
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Almarai', 'Inter', sans-serif;
+            background: transparent;
+        }
+
+        .widget-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(230, 250, 255, 0.95));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            /* hide scrollbar for iframe aesthetics */
+            scrollbar-width: none;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tier-display-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .tier-badge {
+            font-size: 0.75rem;
+            background: rgba(24, 193, 245, 0.15);
+            color: var(--webteb-dark-cyan);
+            border: 1px solid rgba(24, 193, 245, 0.3);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 16px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+            max-width: 90%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .message {
+            display: flex;
+            width: 100%;
+        }
+
+        .message.user {
+            justify-content: flex-start;
+        }
+
+        .message.bot {
+            justify-content: flex-end;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, var(--webteb-cyan), var(--webteb-dark-cyan));
+            color: white;
+            border-bottom-right-radius: 4px;
+            /* Adjust for RTL */
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: var(--text-dark);
+            border-bottom-left-radius: 4px;
+            /* Adjust for RTL */
+            border: 1px solid rgba(24, 193, 245, 0.15);
+        }
+
+        .search-container {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid rgba(24, 193, 245, 0.15);
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3.5rem;
+            /* left padding for the button in RTL */
+            border: 1px solid rgba(24, 193, 245, 0.25);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: #ffffff;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(24, 193, 245, 0.05);
+        }
+
+        .search-input:focus {
+            border-color: var(--webteb-cyan);
+            box-shadow: 0 0 0 3px rgba(24, 193, 245, 0.15);
+        }
+
+        .search-btn {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 16px;
+            background: var(--webteb-cyan);
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(24, 193, 245, 0.3);
+        }
+
+        .search-btn:hover {
+            background: var(--webteb-dark-cyan);
+            transform: translateY(-50%) scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="widget-wrapper">
+        <!-- Core Chat Area -->
+        <div class="chat-messages" id="chatArea">
+            <div class="tier-display-container">
+                <span class="tier-badge" id="userTierDisplay">👤 زائر</span>
+            </div>
+
+            <div class="message bot">
+                <div class="message-bubble">أهلاً بك! كيف يمكنني مساعدتك؟</div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="search-container">
+            <div class="search-box">
+                <button class="search-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" class="search-input" id="userInput" placeholder="اكتب رسالتك..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- Script references widget.js -->
+    <script src="widget.js"></script>
+</body>
+
+</html>
