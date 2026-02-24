@@ -52,7 +52,7 @@
     // 2. Create Hidden Iframe
     const iframe = document.createElement('iframe');
     // NOTE: Replace this domain with your final standalone widget URL.
-    iframe.src = 'https://YOUR_VERCEL_APP_URL.vercel.app/widget.html';
+iframe.src = 'https://medical-chatbot-git-feature-usage-limits-anas-projects-30c1c013.vercel.app/widget.html';
     iframe.style.cssText = `
         position: fixed;
         bottom: 100px;
