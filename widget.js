@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 payload.guest_session_id = localGuestId;
             }
 
-            const response = await fetch('https://medical-chatbot-staging.onrender.com', {
+            const response = await fetch('https://medical-chatbot-staging.onrender.com/api/chat', {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(payload)
