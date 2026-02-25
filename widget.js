@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 payload.guest_session_id = localGuestId;
             }
 
-            const response = await fetch('https://medical-chatbot-git-feature-usage-limits-anas-projects-30c1c013.vercel.app/index.html', {
+            const response = await fetch('https://medical-chatbot-staging.onrender.com', {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(payload)
