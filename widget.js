@@ -94,22 +94,120 @@ document.addEventListener('DOMContentLoaded', () => {
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    function handleSendMessage() {
+    async function handleSendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
+
+        // Retrieve the token and tier securely from sessionStorage
+        const token = sessionStorage.getItem('widget_token') || currentToken;
+        const tier = sessionStorage.getItem('widget_tier') || currentTier || 'Guest';
+
+        // 1) Enforce Exact UI Rate Limits based on tier
+        const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+        let maxWords = 20; // Default for 'Guest'
+
+        const tierLower = tier.toLowerCase();
+        if (tierLower.includes('pro')) {
+            maxWords = 1000;
+        } else if (tierLower.includes('free') || tier.includes('مجاني') || tierLower.includes('registered')) {
+            maxWords = 25;
+        }
+
+        if (wordCount > maxWords) {
+            appendMessage(`عذراً، لقد تجاوزت الحد الأقصى للكلمات في هذه الرسالة. الحد المسموح به هو ${maxWords} كلمة.`, 'bot');
+            return;
+        }
 
         // Add user message to UI
         appendMessage(text, 'user');
         userInput.value = '';
 
-        // Mocking bot response (Here you'd call your actual FastAPI backend with `currentToken`)
-        setTimeout(() => {
-            if (currentToken) {
-                appendMessage('هذا رد اختباري. لقد تم مصادقة حسابك بنجاح باستخدام الـ Token الممرر.', 'bot');
-            } else {
-                appendMessage('هذا رد اختباري. أنت تتحدث الآن كزائر. يرجى تمرير التوكن للحصول على المزايا.', 'bot');
+        // Create an empty bot bubble for streaming the response chunk-by-chunk
+        const msgRow = document.createElement('div');
+        msgRow.className = 'message bot';
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        msgRow.appendChild(bubble);
+        chatArea.appendChild(msgRow);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        // 2) Connect to Custom Backend with fetch
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            // Send the Authorization: Bearer <token> in the headers (if the token exists)
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
             }
-        }, 800);
+
+            // Send the user's message in the JSON body
+            const payload = { message: text };
+
+            // To prevent throwing 401 when Guest mode is active in this project logic
+            if (!token) {
+                // Generate a persistent guest session locally if backend enforces it.
+                // We'll safely attach guest_session_id based on typical requirements,
+                // but if not required it normally ignores it.
+                let localGuestId = sessionStorage.getItem('guest_session_id');
+                if (!localGuestId) {
+                    localGuestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('guest_session_id', localGuestId);
+                }
+                payload.guest_session_id = localGuestId;
+            }
+
+            const response = await fetch('https://YOUR_RENDER_URL.onrender.com/api/chat', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                let errorMsg = 'عذراً، حدث خطأ أثناء الاتصال بالخادم.';
+                try {
+                    const errorData = await response.json();
+                    if (errorData?.error?.message) errorMsg = errorData.error.message;
+                } catch (e) { }
+                bubble.textContent = errorMsg;
+                return;
+            }
+
+            // 3) Handle Server-Sent Events (SSE) Streaming
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // Keep incomplete line in buffer
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataStr = line.replace('data: ', '').trim();
+                        if (!dataStr || dataStr === '[DONE]') continue;
+
+                        try {
+                            const parsedData = JSON.parse(dataStr);
+                            if (parsedData.type === 'content' && parsedData.data) {
+                                bubble.textContent += parsedData.data;
+                                chatArea.scrollTop = chatArea.scrollHeight;
+                            } else if (parsedData.type === 'error' && parsedData.data?.error) {
+                                bubble.textContent += '\n[خطأ: ' + parsedData.data.error + ']';
+                                chatArea.scrollTop = chatArea.scrollHeight;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE chunk:', e);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            bubble.textContent = 'حدث خطأ في الاتصال بالخادم. الرجاء المحاولة لاحقاً.';
+        }
     }
 
     // 5) Event Listeners
