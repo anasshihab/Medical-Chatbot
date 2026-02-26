@@ -3142,11 +3142,19 @@
 
         // ---- Path A: Guest ----
         async function handleGuest() {
+            // Ensure no API calls if guestSessionId is null string or actually null
+            if (guestSessionId === 'null' || guestSessionId === null) {
+                // Gracefully generate a new one before proceeding
+                guestSessionId = crypto.randomUUID ? crypto.randomUUID() : 'guest_' + Date.now();
+                localStorage.setItem('med_id', guestSessionId);
+            }
+
             clearAuthError();
             const btn = document.getElementById('guestBtn');
             btn.disabled = true;
             btn.textContent = '⏳ جاري الاتصال...';
             try {
+                // Note: The backend /api/auth/guest typically generates the session, but passing or having a valid one locally prevents "null" errors
                 const res = await fetch(`${API_BASE_URL}/api/auth/guest`, { method: 'POST' });
                 if (!res.ok) throw new Error(await res.text());
                 const data = await res.json();
@@ -3855,6 +3863,12 @@
 
         // Load conversations from the database
         async function loadConversationsList() {
+            // Guard: Do not make API calls if guestSessionId is precisely "null" or null
+            if (isGuest && (guestSessionId === 'null' || guestSessionId === null)) {
+                console.warn("Guest session ID is null. Waiting for a valid ID to load conversations.");
+                return; // Gracefully wait/skip
+            }
+
             try {
                 const convHeaders = {};
                 if (authToken) convHeaders['Authorization'] = `Bearer ${authToken}`;

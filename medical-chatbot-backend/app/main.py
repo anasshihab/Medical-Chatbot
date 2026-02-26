@@ -22,10 +22,13 @@ async def startup_event():
     """Initialize services on startup"""
     setup_logging()
 
+import os
+
 # ---------------------------------------------------------------------------
 # CORS — Explicit origin list (wildcard + credentials is rejected by browsers)
 # ---------------------------------------------------------------------------
 ALLOWED_ORIGINS = [
+    os.getenv("FRONTEND_URL", "https://medical-chatbot-nwruh792u-anas-projects-30c1c013.vercel.app"),
     "https://medical-chatbot-git-feature-usage-limits-anas-projects-30c1c013.vercel.app",
     "http://localhost:5500",
     "http://127.0.0.1:5500"
